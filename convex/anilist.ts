@@ -82,7 +82,7 @@ interface AniListMedia {
 async function fetchAniListMedia(
   malId: number,
   type: "ANIME" | "MANGA",
-  title?: string
+  title?: string,
 ): Promise<AniListMedia | null> {
   try {
     // First try MAL ID lookup
@@ -142,10 +142,10 @@ export const batchFetchAniListData = action({
         malId: v.number(),
         type: v.union(v.literal("ANIME"), v.literal("MANGA")),
         title: v.optional(v.string()),
-      })
+      }),
     ),
   },
-  handler: async (ctx, args) => {
+  handler: async (_ctx, args) => {
     const results: Record<
       string,
       {
@@ -170,14 +170,19 @@ export const batchFetchAniListData = action({
       // Fetch batch concurrently
       const promises = batch.map(async (item) => {
         const key = `${item.type}-${item.malId}`;
-        const media = await fetchAniListMedia(item.malId, item.type, item.title);
+        const media = await fetchAniListMedia(
+          item.malId,
+          item.type,
+          item.title,
+        );
 
         if (media) {
           results[key] = {
             anilistId: media.id,
             title: media.title.romaji,
             titleEnglish: media.title.english,
-            coverImage: media.coverImage?.extraLarge || media.coverImage?.large || null,
+            coverImage:
+              media.coverImage?.extraLarge || media.coverImage?.large || null,
             bannerImage: media.bannerImage,
             genres: media.genres,
             format: media.format,

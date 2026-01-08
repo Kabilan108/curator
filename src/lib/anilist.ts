@@ -360,7 +360,11 @@ export async function batchFetchByMalIds(
     // Fetch batch concurrently
     const promises = batch.map(async (item) => {
       const key = `${item.type}-${item.malId}`;
-      const media = await getAniListMediaByMalId(item.malId, item.type, item.title);
+      const media = await getAniListMediaByMalId(
+        item.malId,
+        item.type,
+        item.title,
+      );
       if (media) {
         results.set(key, media);
       }

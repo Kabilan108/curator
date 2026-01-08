@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "convex/react";
-import { BarChart3, RefreshCw, Scale, SkipForward } from "lucide-react";
+import { RefreshCw, Scale, SkipForward } from "lucide-react";
 import { useEffect, useState } from "react";
 import { StatsPanel } from "@/components/StatsPanel";
 import { Badge } from "@/components/ui/badge";
@@ -23,13 +23,13 @@ export function ComparePage() {
 
   const pair = useQuery((api as any).ranking?.getSmartPair, { mediaType });
   const stats = useQuery((api as any).ranking?.getRankingStats, { mediaType });
-  const dueComparisons = useQuery((api as any).ranking?.getDueComparisons);
   const recordComparison = useMutation(
     (api as any).comparisons?.recordComparison,
   );
   const recordTie = useMutation((api as any).comparisons?.recordTie);
 
   // Reset session count when switching media type
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on mediaType change
   useEffect(() => {
     setSessionCount(0);
     setShowResults(false);
@@ -209,18 +209,23 @@ export function ComparePage() {
           Comparison {sessionCount + 1} of {SESSION_LIMIT}
         </span>
         <div className="flex gap-1">
-          {Array.from({ length: SESSION_LIMIT }).map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 ${i < sessionCount ? "bg-blue-500" : "bg-neutral-700"}`}
-            />
-          ))}
+          {Array.from({ length: SESSION_LIMIT }).map((_, i) => {
+            const dotId = `session-${i}`;
+            return (
+              // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size progress indicator
+              <div
+                key={dotId}
+                className={`w-2 h-2 ${i < sessionCount ? "bg-blue-500" : "bg-neutral-700"}`}
+              />
+            );
+          })}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Item 1 */}
         <button
+          type="button"
           onClick={() => handleChoice(item1._id, item2._id)}
           disabled={isComparing || showResults}
           className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-blue-500 transition-all disabled:opacity-50 text-left focus:outline-none focus:border-blue-500"
@@ -306,6 +311,7 @@ export function ComparePage() {
 
         {/* Item 2 */}
         <button
+          type="button"
           onClick={() => handleChoice(item2._id, item1._id)}
           disabled={isComparing || showResults}
           className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-blue-500 transition-all disabled:opacity-50 text-left focus:outline-none focus:border-blue-500"

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { api } from "./_generated/api";
-import { action, mutation } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import { mutation } from "./_generated/server";
 
 // MAL score to Elo mapping
 // MAL 10 → 1800, MAL 7 → 1500 (baseline), MAL 1 → 900
@@ -13,7 +13,7 @@ function malScoreToElo(malScore: number | null): number {
 // MAL status to our status mapping
 function malStatusToWatchStatus(
   malStatus: string,
-  mediaType: "ANIME" | "MANGA",
+  _mediaType: "ANIME" | "MANGA",
 ): "COMPLETED" | "WATCHING" | "PLAN_TO_WATCH" | "DROPPED" | "ON_HOLD" {
   switch (malStatus) {
     case "completed":
@@ -55,7 +55,7 @@ export const importMalItem = mutation({
       .withIndex("by_mal_id", (q) => q.eq("malId", args.malId))
       .first();
 
-    let mediaItemId;
+    let mediaItemId: Id<"mediaItems">;
 
     if (existingByMal) {
       mediaItemId = existingByMal._id;

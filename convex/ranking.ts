@@ -1,11 +1,10 @@
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
-import { mutation, query } from "./_generated/server";
+import { query } from "./_generated/server";
 
 // Constants for the pairing algorithm
 const NEW_ITEM_THRESHOLD = 5; // Items with fewer comparisons are "new"
 const CLOSE_RATING_RANGE = 100; // Match established items within ±100 Elo
-const DAYS_MS = 24 * 60 * 60 * 1000;
 
 // Get a smart pair for comparison, filtered by media type
 export const getSmartPair = query({
@@ -107,7 +106,7 @@ function findBinarySearchOpponent<
     comparisonCount: number;
     eloRating: number;
   },
->(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
+>(primaryItem: T, _allItems: T[], sortedByElo: T[]): T | null {
   const totalItems = sortedByElo.length;
   if (totalItems < 2) return null;
 
@@ -166,7 +165,7 @@ function findCloseRatingOpponent<
     eloRating: number;
     lastComparedAt?: number;
   },
->(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
+>(primaryItem: T, allItems: T[], _sortedByElo: T[]): T | null {
   const targetRating = primaryItem.eloRating;
 
   // Find items within the close rating range

@@ -241,7 +241,7 @@ export async function fetchAnimeDetails(malId: number): Promise<{
       genres: data.data.genres?.map((g: { name: string }) => g.name) ?? [],
       episodes: data.data.episodes,
     };
-  } catch (error) {
+  } catch {
     return { genres: [], episodes: null, error: "Network error" };
   }
 }
@@ -269,7 +269,7 @@ export async function fetchMangaDetails(malId: number): Promise<{
       genres: data.data.genres?.map((g: { name: string }) => g.name) ?? [],
       chapters: data.data.chapters,
     };
-  } catch (error) {
+  } catch {
     return { genres: [], chapters: null, error: "Network error" };
   }
 }

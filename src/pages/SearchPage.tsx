@@ -52,12 +52,14 @@ function StatusPicker({ mediaType, onSelect, onClose }: StatusPickerProps) {
       className="absolute right-0 bottom-full mb-1 z-10 bg-neutral-800 border border-neutral-700 shadow-lg min-w-[140px]"
     >
       <button
+        type="button"
         onClick={() => onSelect("WATCHING")}
         className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
       >
         {watchingLabel}
       </button>
       <button
+        type="button"
         onClick={() => onSelect("COMPLETED")}
         className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
       >
@@ -81,10 +83,6 @@ export function SearchPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [lastSearchTerm, setLastSearchTerm] = useState("");
-  const [lastFilter, setLastFilter] = useState<"ALL" | "ANIME" | "MANGA">(
-    "ALL",
-  );
 
   // Query existing library items
   const libraryAnilistIds = useQuery(api.library.getAnilistIds);
@@ -111,8 +109,6 @@ export function SearchPage() {
         setResults((prev) => [...prev, ...pageData.media]);
       } else {
         setResults(pageData.media);
-        setLastSearchTerm(searchTerm);
-        setLastFilter(filter);
       }
 
       setCurrentPage(page);

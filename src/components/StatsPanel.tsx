@@ -36,8 +36,11 @@ function ActivityBar({ days }: ActivityBarProps) {
         Last 7 Days
       </div>
       <div className="flex gap-1 items-end h-16">
-        {days.map((day, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+        {days.map((day) => (
+          <div
+            key={day.day}
+            className="flex-1 flex flex-col items-center gap-1"
+          >
             <div
               className="w-full bg-primary/60 transition-all"
               style={{

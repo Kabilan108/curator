@@ -62,7 +62,9 @@ export function SettingsPage() {
   const csvExport = useQuery((api as any).export?.getCsvExport);
   const importMalItem = useMutation((api as any).import?.importMalItem);
   const clearAllData = useMutation((api as any).import?.clearAllData);
-  const batchFetchAniListData = useAction((api as any).anilist?.batchFetchAniListData);
+  const batchFetchAniListData = useAction(
+    (api as any).anilist?.batchFetchAniListData,
+  );
 
   // Apply theme changes
   useEffect(() => {
@@ -113,14 +115,17 @@ export function SettingsPage() {
     animeEntries.forEach((entry) => {
       const malId = parseInt(
         entry.querySelector("series_animedb_id")?.textContent || "0",
+        10,
       );
       const title = entry.querySelector("series_title")?.textContent || "";
       const score = parseInt(
         entry.querySelector("my_score")?.textContent || "0",
+        10,
       );
       const status = entry.querySelector("my_status")?.textContent || "";
       const episodes = parseInt(
         entry.querySelector("my_watched_episodes")?.textContent || "0",
+        10,
       );
 
       if (malId > 0 && title) {
@@ -139,14 +144,17 @@ export function SettingsPage() {
     mangaEntries.forEach((entry) => {
       const malId = parseInt(
         entry.querySelector("manga_mangadb_id")?.textContent || "0",
+        10,
       );
       const title = entry.querySelector("manga_title")?.textContent || "";
       const score = parseInt(
         entry.querySelector("my_score")?.textContent || "0",
+        10,
       );
       const status = entry.querySelector("my_status")?.textContent || "";
       const chapters = parseInt(
         entry.querySelector("my_read_chapters")?.textContent || "0",
+        10,
       );
 
       if (malId > 0 && title) {
@@ -219,17 +227,20 @@ export function SettingsPage() {
 
       // Batch items in chunks for the server action
       const CHUNK_SIZE = 20;
-      const anilistData: Record<string, {
-        anilistId: number;
-        title: string;
-        titleEnglish: string | null;
-        coverImage: string | null;
-        bannerImage: string | null;
-        genres: string[];
-        format: string | null;
-        episodes: number | null;
-        chapters: number | null;
-      } | null> = {};
+      const anilistData: Record<
+        string,
+        {
+          anilistId: number;
+          title: string;
+          titleEnglish: string | null;
+          coverImage: string | null;
+          bannerImage: string | null;
+          genres: string[];
+          format: string | null;
+          episodes: number | null;
+          chapters: number | null;
+        } | null
+      > = {};
 
       for (let i = 0; i < items.length; i += CHUNK_SIZE) {
         const chunk = items.slice(i, i + CHUNK_SIZE);
@@ -447,6 +458,7 @@ export function SettingsPage() {
             <div className="flex gap-2">
               {ACCENT_COLORS.map((color) => (
                 <button
+                  type="button"
                   key={color.value}
                   onClick={() => setAccentColor(color.value)}
                   className={`w-8 h-8 ${color.class} border-2 transition-all ${

@@ -47,6 +47,7 @@ export function HomePage() {
   }, [activeTab]);
 
   // Reset genre filter when switching tabs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset on tab change
   useEffect(() => {
     setSelectedGenres([]);
   }, [activeTab]);
@@ -68,7 +69,9 @@ export function HomePage() {
   const availableGenres = useMemo(() => {
     const genreSet = new Set<string>();
     currentTabItems.forEach((item: any) => {
-      item.media?.genres?.forEach((genre: string) => genreSet.add(genre));
+      item.media?.genres?.forEach((genre: string) => {
+        genreSet.add(genre);
+      });
     });
     return Array.from(genreSet).sort();
   }, [currentTabItems]);
@@ -125,6 +128,7 @@ export function HomePage() {
       {/* Tabs */}
       <div className="flex gap-1 border-b border-neutral-800">
         <button
+          type="button"
           onClick={() => setActiveTab("ANIME")}
           className={`px-4 py-2 text-sm font-medium transition-colors relative ${
             activeTab === "ANIME"
@@ -138,6 +142,7 @@ export function HomePage() {
           )}
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab("MANGA")}
           className={`px-4 py-2 text-sm font-medium transition-colors relative ${
             activeTab === "MANGA"
@@ -160,7 +165,7 @@ export function HomePage() {
           onValueChange={(v) => setSortBy(v as SortOption)}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Sort by" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="elo">Elo Rank</SelectItem>
@@ -190,6 +195,7 @@ export function HomePage() {
             <DropdownMenuContent className="max-h-[300px] overflow-y-auto w-[200px]">
               {selectedGenres.length > 0 && (
                 <button
+                  type="button"
                   onClick={clearGenres}
                   className="w-full px-2 py-2 text-xs text-left text-blue-400 hover:bg-neutral-800"
                 >
@@ -214,6 +220,7 @@ export function HomePage() {
           <div className="flex flex-wrap gap-1">
             {selectedGenres.map((genre) => (
               <button
+                type="button"
                 key={genre}
                 onClick={() => toggleGenre(genre)}
                 className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 hover:bg-blue-600/30 transition-colors"
@@ -242,6 +249,7 @@ export function HomePage() {
         <div className="text-center py-12">
           <p className="text-neutral-400 mb-4">No items match your filters</p>
           <button
+            type="button"
             onClick={clearGenres}
             className="text-sm text-blue-400 hover:text-blue-300"
           >
