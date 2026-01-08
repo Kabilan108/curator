@@ -1,8 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { ChevronDown, Filter } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -10,13 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Filter } from "lucide-react";
+import { api } from "../../convex/_generated/api";
 
 type MediaType = "ANIME" | "MANGA";
 type SortOption = "elo" | "recent" | "alphabetical" | "comparisons";
@@ -61,7 +61,8 @@ export function HomePage() {
   }, [library]);
 
   // Get items for current tab
-  const currentTabItems = activeTab === "ANIME" ? filteredByType.anime : filteredByType.manga;
+  const currentTabItems =
+    activeTab === "ANIME" ? filteredByType.anime : filteredByType.manga;
 
   // Get unique genres from current tab items
   const availableGenres = useMemo(() => {
@@ -76,7 +77,7 @@ export function HomePage() {
   const filteredByGenre = useMemo(() => {
     if (selectedGenres.length === 0) return currentTabItems;
     return currentTabItems.filter((item: any) =>
-      selectedGenres.some((genre) => item.media?.genres?.includes(genre))
+      selectedGenres.some((genre) => item.media?.genres?.includes(genre)),
     );
   }, [currentTabItems, selectedGenres]);
 
@@ -90,10 +91,12 @@ export function HomePage() {
         return items.sort((a: any, b: any) => b.addedAt - a.addedAt);
       case "alphabetical":
         return items.sort((a: any, b: any) =>
-          (a.media?.title || "").localeCompare(b.media?.title || "")
+          (a.media?.title || "").localeCompare(b.media?.title || ""),
         );
       case "comparisons":
-        return items.sort((a: any, b: any) => b.comparisonCount - a.comparisonCount);
+        return items.sort(
+          (a: any, b: any) => b.comparisonCount - a.comparisonCount,
+        );
       default:
         return items;
     }
@@ -101,9 +104,7 @@ export function HomePage() {
 
   const toggleGenre = (genre: string) => {
     setSelectedGenres((prev) =>
-      prev.includes(genre)
-        ? prev.filter((g) => g !== genre)
-        : [...prev, genre]
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
     );
   };
 
@@ -154,7 +155,10 @@ export function HomePage() {
       {/* Controls Row */}
       <div className="flex flex-wrap gap-3 items-center">
         {/* Sort Dropdown */}
-        <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+        <Select
+          value={sortBy}
+          onValueChange={(v) => setSortBy(v as SortOption)}
+        >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
@@ -230,14 +234,13 @@ export function HomePage() {
             No {activeTab.toLowerCase()} in your library yet
           </p>
           <p className="text-sm text-neutral-500">
-            Add some {activeTab.toLowerCase()} from the Search tab to get started!
+            Add some {activeTab.toLowerCase()} from the Search tab to get
+            started!
           </p>
         </div>
       ) : sortedItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-neutral-400 mb-4">
-            No items match your filters
-          </p>
+          <p className="text-neutral-400 mb-4">No items match your filters</p>
           <button
             onClick={clearGenres}
             className="text-sm text-blue-400 hover:text-blue-300"
@@ -250,8 +253,8 @@ export function HomePage() {
           {/* Score Explanation */}
           {currentTabItems.length < 5 && (
             <div className="text-xs text-neutral-500 bg-neutral-900 p-3 border border-neutral-800">
-              Add {5 - currentTabItems.length} more {activeTab.toLowerCase()} to see ranking scores.
-              Scores require at least 5 items.
+              Add {5 - currentTabItems.length} more {activeTab.toLowerCase()} to
+              see ranking scores. Scores require at least 5 items.
             </div>
           )}
 
@@ -259,9 +262,10 @@ export function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {sortedItems.map((item: any, index: number) => {
               // Calculate rank based on Elo position in full list (not filtered)
-              const eloRank = currentTabItems
-                .sort((a: any, b: any) => b.eloRating - a.eloRating)
-                .findIndex((i: any) => i._id === item._id) + 1;
+              const eloRank =
+                currentTabItems
+                  .sort((a: any, b: any) => b.eloRating - a.eloRating)
+                  .findIndex((i: any) => i._id === item._id) + 1;
 
               return (
                 <LibraryCard

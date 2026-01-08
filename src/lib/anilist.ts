@@ -154,7 +154,7 @@ export async function searchAniList(
   searchTerm: string,
   type?: "ANIME" | "MANGA",
   page: number = 1,
-  perPage: number = 20
+  perPage: number = 20,
 ): Promise<AniListSearchResponse["data"]["Page"]> {
   const response = await fetch(ANILIST_API_URL, {
     method: "POST",
@@ -245,12 +245,57 @@ const MEDIA_BY_MAL_QUERY = `
   }
 `;
 
-// Lookup media by MAL ID
+// Query to search by title (used as fallback)
+const SEARCH_BY_TITLE_QUERY = `
+  query ($search: String, $type: MediaType) {
+    Media(search: $search, type: $type) {
+      id
+      idMal
+      type
+      title {
+        romaji
+        english
+        native
+      }
+      description
+      coverImage {
+        large
+        extraLarge
+      }
+      bannerImage
+      genres
+      tags {
+        name
+        rank
+      }
+      format
+      status
+      episodes
+      chapters
+      averageScore
+      popularity
+      startDate {
+        year
+        month
+        day
+      }
+      endDate {
+        year
+        month
+        day
+      }
+    }
+  }
+`;
+
+// Lookup media by MAL ID, with optional title fallback
 export async function getAniListMediaByMalId(
   malId: number,
-  type: "ANIME" | "MANGA"
+  type: "ANIME" | "MANGA",
+  title?: string,
 ): Promise<AniListMedia | null> {
   try {
+    // First try MAL ID lookup
     const response = await fetch(ANILIST_API_URL, {
       method: "POST",
       headers: {
@@ -263,12 +308,36 @@ export async function getAniListMediaByMalId(
       }),
     });
 
-    if (!response.ok) {
-      return null;
+    if (response.ok) {
+      const data = await response.json();
+      if (data.data?.Media) {
+        return data.data.Media;
+      }
     }
 
-    const data = await response.json();
-    return data.data?.Media || null;
+    // If MAL ID lookup failed and we have a title, try searching by title
+    if (title) {
+      const searchResponse = await fetch(ANILIST_API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: SEARCH_BY_TITLE_QUERY,
+          variables: { search: title, type },
+        }),
+      });
+
+      if (searchResponse.ok) {
+        const searchData = await searchResponse.json();
+        if (searchData.data?.Media) {
+          return searchData.data.Media;
+        }
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
@@ -276,13 +345,14 @@ export async function getAniListMediaByMalId(
 
 // Batch fetch multiple media items by MAL IDs with rate limiting
 // AniList rate limit is 90 requests per minute, so we batch and add delays
+// Now includes title for fallback search when MAL ID lookup fails
 export async function batchFetchByMalIds(
-  items: Array<{ malId: number; type: "ANIME" | "MANGA" }>,
-  onProgress?: (current: number, total: number) => void
+  items: Array<{ malId: number; type: "ANIME" | "MANGA"; title?: string }>,
+  onProgress?: (current: number, total: number) => void,
 ): Promise<Map<string, AniListMedia>> {
   const results = new Map<string, AniListMedia>();
-  const BATCH_SIZE = 5; // Concurrent requests per batch
-  const DELAY_MS = 350; // Delay between batches to stay under rate limit
+  const BATCH_SIZE = 3; // Reduced batch size since we may do 2 requests per item (MAL ID + title fallback)
+  const DELAY_MS = 500; // Increased delay to account for potential fallback requests
 
   for (let i = 0; i < items.length; i += BATCH_SIZE) {
     const batch = items.slice(i, i + BATCH_SIZE);
@@ -290,7 +360,7 @@ export async function batchFetchByMalIds(
     // Fetch batch concurrently
     const promises = batch.map(async (item) => {
       const key = `${item.type}-${item.malId}`;
-      const media = await getAniListMediaByMalId(item.malId, item.type);
+      const media = await getAniListMediaByMalId(item.malId, item.type, item.title);
       if (media) {
         results.set(key, media);
       }

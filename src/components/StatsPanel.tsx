@@ -1,6 +1,6 @@
 import { useQuery } from "convex/react";
+import { BarChart3, Calendar, Flame, Target, Trophy } from "lucide-react";
 import { api } from "../../convex/_generated/api";
-import { Flame, Target, BarChart3, Trophy, Calendar } from "lucide-react";
 
 interface StatCardProps {
   icon: React.ReactNode;

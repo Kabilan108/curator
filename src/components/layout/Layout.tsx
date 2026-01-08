@@ -1,5 +1,5 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, Search, GitCompare, Settings } from "lucide-react";
+import { GitCompare, Home, Search, Settings } from "lucide-react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 export function Layout() {
@@ -36,7 +36,7 @@ export function Layout() {
                   "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors flex-1",
                   isActive
                     ? "text-blue-400"
-                    : "text-neutral-400 hover:text-neutral-50"
+                    : "text-neutral-400 hover:text-neutral-50",
                 )}
               >
                 <Icon className="w-6 h-6" />

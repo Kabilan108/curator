@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
+import { mutation, query } from "./_generated/server";
 
 // Constants for the pairing algorithm
 const NEW_ITEM_THRESHOLD = 5; // Items with fewer comparisons are "new"
@@ -21,11 +21,11 @@ export const getSmartPair = query({
       allItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
     const filteredItems = itemsWithMedia.filter(
-      (item) => item.media?.type === args.mediaType
+      (item) => item.media?.type === args.mediaType,
     );
 
     if (filteredItems.length < 2) {
@@ -34,7 +34,7 @@ export const getSmartPair = query({
 
     // Sort by Elo for percentile-based pairing
     const sortedByElo = [...filteredItems].sort(
-      (a, b) => b.eloRating - a.eloRating
+      (a, b) => b.eloRating - a.eloRating,
     );
 
     // Find items that need re-ranking first (triggered by status change to COMPLETED)
@@ -49,20 +49,20 @@ export const getSmartPair = query({
 
     // Find new items that need binary-search placement
     const newItems = filteredItems.filter(
-      (item) => item.comparisonCount < NEW_ITEM_THRESHOLD
+      (item) => item.comparisonCount < NEW_ITEM_THRESHOLD,
     );
 
     if (newItems.length > 0) {
       // Pick the newest item with fewest comparisons
       const primaryItem = newItems.sort(
-        (a, b) => a.comparisonCount - b.comparisonCount
+        (a, b) => a.comparisonCount - b.comparisonCount,
       )[0];
 
       // Binary search: compare against items at strategic percentiles
       const opponent = findBinarySearchOpponent(
         primaryItem,
         filteredItems,
-        sortedByElo
+        sortedByElo,
       );
       if (opponent) {
         return { item1: primaryItem, item2: opponent };
@@ -72,7 +72,7 @@ export const getSmartPair = query({
     // For established items: pair within close rating range
     // Prioritize items not compared recently
     const established = filteredItems.filter(
-      (item) => item.comparisonCount >= NEW_ITEM_THRESHOLD
+      (item) => item.comparisonCount >= NEW_ITEM_THRESHOLD,
     );
 
     if (established.length >= 2) {
@@ -87,7 +87,7 @@ export const getSmartPair = query({
       const opponent = findCloseRatingOpponent(
         primaryItem,
         established,
-        sortedByElo
+        sortedByElo,
       );
       if (opponent) {
         return { item1: primaryItem, item2: opponent };
@@ -102,7 +102,11 @@ export const getSmartPair = query({
 
 // Find opponent for binary search placement of new items
 function findBinarySearchOpponent<
-  T extends { _id: Id<"userLibrary">; comparisonCount: number; eloRating: number }
+  T extends {
+    _id: Id<"userLibrary">;
+    comparisonCount: number;
+    eloRating: number;
+  },
 >(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
   const totalItems = sortedByElo.length;
   if (totalItems < 2) return null;
@@ -119,7 +123,7 @@ function findBinarySearchOpponent<
   } else if (primaryItem.comparisonCount === 1) {
     // Based on current position, go to 25th or 75th
     const currentRank = sortedByElo.findIndex(
-      (item) => item._id === primaryItem._id
+      (item) => item._id === primaryItem._id,
     );
     if (currentRank < totalItems / 2) {
       // Currently in top half, compare against 75th percentile
@@ -131,7 +135,7 @@ function findBinarySearchOpponent<
   } else {
     // Further refinement: find nearest uncompared item
     const currentRank = sortedByElo.findIndex(
-      (item) => item._id === primaryItem._id
+      (item) => item._id === primaryItem._id,
     );
     // Go to 1/4 or 3/4 of the remaining range
     if (primaryItem.comparisonCount % 2 === 0) {
@@ -139,7 +143,7 @@ function findBinarySearchOpponent<
     } else {
       targetIndex = Math.min(
         totalItems - 1,
-        currentRank + Math.floor(totalItems / 4)
+        currentRank + Math.floor(totalItems / 4),
       );
     }
   }
@@ -157,7 +161,11 @@ function findBinarySearchOpponent<
 
 // Find opponent within close rating range for established items
 function findCloseRatingOpponent<
-  T extends { _id: Id<"userLibrary">; eloRating: number; lastComparedAt?: number }
+  T extends {
+    _id: Id<"userLibrary">;
+    eloRating: number;
+    lastComparedAt?: number;
+  },
 >(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
   const targetRating = primaryItem.eloRating;
 
@@ -165,7 +173,7 @@ function findCloseRatingOpponent<
   const closeRatingItems = allItems.filter(
     (item) =>
       item._id !== primaryItem._id &&
-      Math.abs(item.eloRating - targetRating) <= CLOSE_RATING_RANGE
+      Math.abs(item.eloRating - targetRating) <= CLOSE_RATING_RANGE,
   );
 
   if (closeRatingItems.length === 0) {
@@ -176,7 +184,7 @@ function findCloseRatingOpponent<
     return others.sort(
       (a, b) =>
         Math.abs(a.eloRating - targetRating) -
-        Math.abs(b.eloRating - targetRating)
+        Math.abs(b.eloRating - targetRating),
     )[0];
   }
 
@@ -192,7 +200,11 @@ function findCloseRatingOpponent<
 
 // Generic opponent finder
 function findOpponent<
-  T extends { _id: Id<"userLibrary">; comparisonCount: number; eloRating: number }
+  T extends {
+    _id: Id<"userLibrary">;
+    comparisonCount: number;
+    eloRating: number;
+  },
 >(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
   if (primaryItem.comparisonCount < NEW_ITEM_THRESHOLD) {
     return findBinarySearchOpponent(primaryItem, allItems, sortedByElo);
@@ -213,7 +225,7 @@ export const getRankingStats = query({
       allItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
     const filteredItems = args.mediaType
@@ -230,7 +242,7 @@ export const getRankingStats = query({
 
     // Get new items needing placement
     const newItems = filteredItems.filter(
-      (item) => item.comparisonCount < NEW_ITEM_THRESHOLD
+      (item) => item.comparisonCount < NEW_ITEM_THRESHOLD,
     );
 
     return {
@@ -242,8 +254,10 @@ export const getRankingStats = query({
       averageComparisons:
         filteredItems.length > 0
           ? Math.round(
-              filteredItems.reduce((sum, item) => sum + item.comparisonCount, 0) /
-                filteredItems.length
+              filteredItems.reduce(
+                (sum, item) => sum + item.comparisonCount,
+                0,
+              ) / filteredItems.length,
             )
           : 0,
     };
@@ -262,11 +276,11 @@ export const getItemsWithPercentile = query({
       allItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
     const filteredItems = itemsWithMedia.filter(
-      (item) => item.media?.type === args.mediaType
+      (item) => item.media?.type === args.mediaType,
     );
 
     // Sort by Elo descending
@@ -279,7 +293,8 @@ export const getItemsWithPercentile = query({
       // Percentile: (items ranked below / total) * 100
       // Then convert to 0-10 scale
       const itemsRankedBelow = total - rank;
-      const percentile = total > 1 ? (itemsRankedBelow / (total - 1)) * 100 : 50;
+      const percentile =
+        total > 1 ? (itemsRankedBelow / (total - 1)) * 100 : 50;
       const score = percentile / 10; // 0-10 scale
 
       return {
@@ -315,7 +330,7 @@ export const getDueComparisons = query({
       dueCount: dueItems.length,
       needsReranking: dueItems.filter((i) => i.needsReranking).length,
       scheduled: dueItems.filter(
-        (i) => i.nextComparisonDue && i.nextComparisonDue < now
+        (i) => i.nextComparisonDue && i.nextComparisonDue < now,
       ).length,
       newItems: dueItems.filter((i) => i.comparisonCount < NEW_ITEM_THRESHOLD)
         .length,

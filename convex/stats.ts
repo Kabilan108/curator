@@ -20,11 +20,15 @@ export const getUserStats = query({
       libraryItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
-    const animeCount = itemsWithMedia.filter((i) => i.media?.type === "ANIME").length;
-    const mangaCount = itemsWithMedia.filter((i) => i.media?.type === "MANGA").length;
+    const animeCount = itemsWithMedia.filter(
+      (i) => i.media?.type === "ANIME",
+    ).length;
+    const mangaCount = itemsWithMedia.filter(
+      (i) => i.media?.type === "MANGA",
+    ).length;
 
     // Calculate streak
     const streak = calculateStreak(comparisons);
@@ -33,7 +37,9 @@ export const getUserStats = query({
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayStart = today.getTime();
-    const todayComparisons = comparisons.filter((c) => c.createdAt >= todayStart).length;
+    const todayComparisons = comparisons.filter(
+      (c) => c.createdAt >= todayStart,
+    ).length;
 
     // Calculate ranking stability (how much ratings are changing)
     const recentComparisons = comparisons.slice(0, 20);
@@ -60,8 +66,10 @@ export const getUserStats = query({
       averageComparisonsPerItem:
         libraryItems.length > 0
           ? Math.round(
-              libraryItems.reduce((sum, item) => sum + item.comparisonCount, 0) /
-                libraryItems.length
+              libraryItems.reduce(
+                (sum, item) => sum + item.comparisonCount,
+                0,
+              ) / libraryItems.length,
             )
           : 0,
     };
@@ -69,9 +77,11 @@ export const getUserStats = query({
 });
 
 // Calculate current streak and longest streak
-function calculateStreak(
-  comparisons: { createdAt: number }[]
-): { current: number; longest: number; days: string[] } {
+function calculateStreak(comparisons: { createdAt: number }[]): {
+  current: number;
+  longest: number;
+  days: string[];
+} {
   if (comparisons.length === 0) {
     return { current: 0, longest: 0, days: [] };
   }
@@ -153,7 +163,7 @@ function calculateStreak(
 
 // Calculate ranking stability (0-100, higher = more stable)
 function calculateStability(
-  recentComparisons: { winnerId: string; loserId: string }[]
+  recentComparisons: { winnerId: string; loserId: string }[],
 ): number {
   if (recentComparisons.length < 5) {
     return 100; // Not enough data, assume stable
@@ -168,7 +178,7 @@ function calculateStability(
 
 // Get activity for last 7 days
 function getLast7DaysActivity(
-  comparisons: { createdAt: number }[]
+  comparisons: { createdAt: number }[],
 ): { day: string; count: number }[] {
   const days: { day: string; count: number }[] = [];
   const today = new Date();
@@ -181,7 +191,7 @@ function getLast7DaysActivity(
     const dayEnd = dayStart + DAYS_MS;
 
     const count = comparisons.filter(
-      (c) => c.createdAt >= dayStart && c.createdAt < dayEnd
+      (c) => c.createdAt >= dayStart && c.createdAt < dayEnd,
     ).length;
 
     const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
@@ -209,7 +219,7 @@ export const getTopItems = query({
       libraryItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
     let filtered = itemsWithMedia;

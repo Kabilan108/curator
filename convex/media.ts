@@ -26,14 +26,14 @@ export const upsertMediaItem = mutation({
         year: v.optional(v.number()),
         month: v.optional(v.number()),
         day: v.optional(v.number()),
-      })
+      }),
     ),
     endDate: v.optional(
       v.object({
         year: v.optional(v.number()),
         month: v.optional(v.number()),
         day: v.optional(v.number()),
-      })
+      }),
     ),
   },
   handler: async (ctx, args) => {

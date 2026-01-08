@@ -33,16 +33,20 @@ export default defineSchema({
     popularity: v.optional(v.number()),
 
     // Dates as objects (AniList format)
-    startDate: v.optional(v.object({
-      year: v.optional(v.number()),
-      month: v.optional(v.number()),
-      day: v.optional(v.number()),
-    })),
-    endDate: v.optional(v.object({
-      year: v.optional(v.number()),
-      month: v.optional(v.number()),
-      day: v.optional(v.number()),
-    })),
+    startDate: v.optional(
+      v.object({
+        year: v.optional(v.number()),
+        month: v.optional(v.number()),
+        day: v.optional(v.number()),
+      }),
+    ),
+    endDate: v.optional(
+      v.object({
+        year: v.optional(v.number()),
+        month: v.optional(v.number()),
+        day: v.optional(v.number()),
+      }),
+    ),
   })
     .index("by_anilist_id", ["anilistId"])
     .index("by_mal_id", ["malId"])
@@ -65,7 +69,7 @@ export default defineSchema({
       v.literal("WATCHING"),
       v.literal("PLAN_TO_WATCH"),
       v.literal("DROPPED"),
-      v.literal("ON_HOLD")
+      v.literal("ON_HOLD"),
     ),
 
     // Personal notes
@@ -106,7 +110,7 @@ export default defineSchema({
       v.literal("SELECT"),
       v.literal("MULTI_SELECT"),
       v.literal("DATE"),
-      v.literal("RATING")
+      v.literal("RATING"),
     ),
     // For SELECT and MULTI_SELECT types
     options: v.optional(v.array(v.string())),

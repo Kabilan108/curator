@@ -98,7 +98,7 @@ const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // Fetch user's anime list from Jikan
 export async function fetchUserAnimeList(
   username: string,
-  status?: string
+  status?: string,
 ): Promise<{
   items: Array<{
     malId: number;
@@ -115,7 +115,7 @@ export async function fetchUserAnimeList(
     // Jikan rate limit: 3 requests per second
     const statusParam = status ? `&status=${status}` : "";
     const response = await fetch(
-      `${JIKAN_BASE}/users/${username}/animelist?limit=300${statusParam}`
+      `${JIKAN_BASE}/users/${username}/animelist?limit=300${statusParam}`,
     );
 
     if (!response.ok) {
@@ -123,9 +123,17 @@ export async function fetchUserAnimeList(
         return { items: [], hasMore: false, error: "User not found" };
       }
       if (response.status === 429) {
-        return { items: [], hasMore: false, error: "Rate limited. Please wait a moment." };
+        return {
+          items: [],
+          hasMore: false,
+          error: "Rate limited. Please wait a moment.",
+        };
       }
-      return { items: [], hasMore: false, error: `API error: ${response.status}` };
+      return {
+        items: [],
+        hasMore: false,
+        error: `API error: ${response.status}`,
+      };
     }
 
     const data: JikanAnimeResponse = await response.json();
@@ -152,7 +160,7 @@ export async function fetchUserAnimeList(
 // Fetch user's manga list from Jikan
 export async function fetchUserMangaList(
   username: string,
-  status?: string
+  status?: string,
 ): Promise<{
   items: Array<{
     malId: number;
@@ -168,7 +176,7 @@ export async function fetchUserMangaList(
   try {
     const statusParam = status ? `&status=${status}` : "";
     const response = await fetch(
-      `${JIKAN_BASE}/users/${username}/mangalist?limit=300${statusParam}`
+      `${JIKAN_BASE}/users/${username}/mangalist?limit=300${statusParam}`,
     );
 
     if (!response.ok) {
@@ -176,9 +184,17 @@ export async function fetchUserMangaList(
         return { items: [], hasMore: false, error: "User not found" };
       }
       if (response.status === 429) {
-        return { items: [], hasMore: false, error: "Rate limited. Please wait a moment." };
+        return {
+          items: [],
+          hasMore: false,
+          error: "Rate limited. Please wait a moment.",
+        };
       }
-      return { items: [], hasMore: false, error: `API error: ${response.status}` };
+      return {
+        items: [],
+        hasMore: false,
+        error: `API error: ${response.status}`,
+      };
     }
 
     const data: JikanMangaResponse = await response.json();
@@ -213,7 +229,11 @@ export async function fetchAnimeDetails(malId: number): Promise<{
     const response = await fetch(`${JIKAN_BASE}/anime/${malId}`);
 
     if (!response.ok) {
-      return { genres: [], episodes: null, error: `API error: ${response.status}` };
+      return {
+        genres: [],
+        episodes: null,
+        error: `API error: ${response.status}`,
+      };
     }
 
     const data = await response.json();
@@ -237,7 +257,11 @@ export async function fetchMangaDetails(malId: number): Promise<{
     const response = await fetch(`${JIKAN_BASE}/manga/${malId}`);
 
     if (!response.ok) {
-      return { genres: [], chapters: null, error: `API error: ${response.status}` };
+      return {
+        genres: [],
+        chapters: null,
+        error: `API error: ${response.status}`,
+      };
     }
 
     const data = await response.json();

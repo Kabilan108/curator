@@ -11,7 +11,7 @@ export const getAnilistIds = query({
       libraryItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return media?.anilistId ?? null;
-      })
+      }),
     );
 
     return anilistIds.filter((id): id is number => id !== null);
@@ -35,7 +35,7 @@ export const getAll = query({
           ...item,
           media,
         };
-      })
+      }),
     );
 
     return itemsWithMedia;
@@ -59,7 +59,7 @@ export const getByElo = query({
           ...item,
           media,
         };
-      })
+      }),
     );
 
     return itemsWithMedia;
@@ -90,7 +90,7 @@ export const addToLibrary = mutation({
       v.literal("WATCHING"),
       v.literal("PLAN_TO_WATCH"),
       v.literal("DROPPED"),
-      v.literal("ON_HOLD")
+      v.literal("ON_HOLD"),
     ),
   },
   handler: async (ctx, args) => {
@@ -137,8 +137,8 @@ export const updateLibraryItem = mutation({
         v.literal("WATCHING"),
         v.literal("PLAN_TO_WATCH"),
         v.literal("DROPPED"),
-        v.literal("ON_HOLD")
-      )
+        v.literal("ON_HOLD"),
+      ),
     ),
     userNotes: v.optional(v.string()),
     customTags: v.optional(v.array(v.string())),

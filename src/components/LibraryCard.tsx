@@ -1,7 +1,5 @@
 import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +11,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { api } from "../../convex/_generated/api";
 
 type WatchStatus =
   | "COMPLETED"
@@ -41,13 +41,29 @@ interface LibraryCardProps {
   totalItems: number;
 }
 
-const statusConfig: Record<WatchStatus, { label: string; className: string }> = {
-  COMPLETED: { label: "Completed", className: "bg-green-600/20 text-green-400 border-green-600/30" },
-  WATCHING: { label: "Watching", className: "bg-blue-600/20 text-blue-400 border-blue-600/30" },
-  PLAN_TO_WATCH: { label: "Plan to Watch", className: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30" },
-  DROPPED: { label: "Dropped", className: "bg-red-600/20 text-red-400 border-red-600/30" },
-  ON_HOLD: { label: "On Hold", className: "bg-orange-600/20 text-orange-400 border-orange-600/30" },
-};
+const statusConfig: Record<WatchStatus, { label: string; className: string }> =
+  {
+    COMPLETED: {
+      label: "Completed",
+      className: "bg-green-600/20 text-green-400 border-green-600/30",
+    },
+    WATCHING: {
+      label: "Watching",
+      className: "bg-blue-600/20 text-blue-400 border-blue-600/30",
+    },
+    PLAN_TO_WATCH: {
+      label: "Plan to Watch",
+      className: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
+    },
+    DROPPED: {
+      label: "Dropped",
+      className: "bg-red-600/20 text-red-400 border-red-600/30",
+    },
+    ON_HOLD: {
+      label: "On Hold",
+      className: "bg-orange-600/20 text-orange-400 border-orange-600/30",
+    },
+  };
 
 export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
   const removeFromLibrary = useMutation((api as any).library.removeFromLibrary);
@@ -112,8 +128,9 @@ export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Remove from Library</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to remove "{item.media?.title}" from your library?
-                  This will also remove all comparison history for this item.
+                  Are you sure you want to remove "{item.media?.title}" from
+                  your library? This will also remove all comparison history for
+                  this item.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

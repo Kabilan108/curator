@@ -1,13 +1,18 @@
-import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { searchAniList, type AniListMedia } from "@/lib/anilist";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Check, ChevronDown, Plus, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Search, Plus, Check, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { type AniListMedia, searchAniList } from "@/lib/anilist";
+import { api } from "../../convex/_generated/api";
 
-type WatchStatus = "COMPLETED" | "WATCHING" | "PLAN_TO_WATCH" | "DROPPED" | "ON_HOLD";
+type WatchStatus =
+  | "COMPLETED"
+  | "WATCHING"
+  | "PLAN_TO_WATCH"
+  | "DROPPED"
+  | "ON_HOLD";
 
 interface StatusPickerProps {
   mediaType: "ANIME" | "MANGA";
@@ -20,7 +25,10 @@ function StatusPicker({ mediaType, onSelect, onClose }: StatusPickerProps) {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+      if (
+        pickerRef.current &&
+        !pickerRef.current.contains(event.target as Node)
+      ) {
         onClose();
       }
     }
@@ -65,14 +73,18 @@ export function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"ALL" | "ANIME" | "MANGA">("ALL");
   const [addedItems, setAddedItems] = useState<Set<number>>(new Set());
-  const [activeStatusPicker, setActiveStatusPicker] = useState<number | null>(null);
+  const [activeStatusPicker, setActiveStatusPicker] = useState<number | null>(
+    null,
+  );
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [lastSearchTerm, setLastSearchTerm] = useState("");
-  const [lastFilter, setLastFilter] = useState<"ALL" | "ANIME" | "MANGA">("ALL");
+  const [lastFilter, setLastFilter] = useState<"ALL" | "ANIME" | "MANGA">(
+    "ALL",
+  );
 
   // Query existing library items
   const libraryAnilistIds = useQuery(api.library.getAnilistIds);
@@ -118,7 +130,12 @@ export function SearchPage() {
   };
 
   // Helper to convert null values to undefined for Convex compatibility
-  const cleanDate = (date: { year?: number | null; month?: number | null; day?: number | null } | null | undefined) => {
+  const cleanDate = (
+    date:
+      | { year?: number | null; month?: number | null; day?: number | null }
+      | null
+      | undefined,
+  ) => {
     if (!date) return undefined;
     return {
       year: date.year ?? undefined,
@@ -127,7 +144,10 @@ export function SearchPage() {
     };
   };
 
-  const handleAddToLibrary = async (media: AniListMedia, status: WatchStatus) => {
+  const handleAddToLibrary = async (
+    media: AniListMedia,
+    status: WatchStatus,
+  ) => {
     try {
       // First, upsert the media item
       const mediaId = await upsertMedia({
@@ -299,9 +319,13 @@ export function SearchPage() {
                           <>
                             <Button
                               size="sm"
-                              onClick={() => setActiveStatusPicker(
-                                activeStatusPicker === media.id ? null : media.id
-                              )}
+                              onClick={() =>
+                                setActiveStatusPicker(
+                                  activeStatusPicker === media.id
+                                    ? null
+                                    : media.id,
+                                )
+                              }
                             >
                               <Plus className="w-4 h-4 mr-1" />
                               Add
@@ -310,7 +334,9 @@ export function SearchPage() {
                             {activeStatusPicker === media.id && (
                               <StatusPicker
                                 mediaType={media.type}
-                                onSelect={(status) => handleAddToLibrary(media, status)}
+                                onSelect={(status) =>
+                                  handleAddToLibrary(media, status)
+                                }
                                 onClose={() => setActiveStatusPicker(null)}
                               />
                             )}
@@ -339,9 +365,7 @@ export function SearchPage() {
           )}
         </div>
       ) : loading ? (
-        <div className="text-center text-neutral-400 py-12">
-          Searching...
-        </div>
+        <div className="text-center text-neutral-400 py-12">Searching...</div>
       ) : (
         <div className="text-center text-neutral-500 py-12">
           Search for anime or manga to get started

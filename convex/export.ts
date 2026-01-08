@@ -41,7 +41,7 @@ export const getFullExport = query({
               }
             : null,
         };
-      })
+      }),
     );
 
     // Get comparison history
@@ -89,7 +89,7 @@ export const getCsvExport = query({
       libraryItems.map(async (item) => {
         const media = await ctx.db.get(item.mediaItemId);
         return { ...item, media };
-      })
+      }),
     );
 
     // Filter by type if specified

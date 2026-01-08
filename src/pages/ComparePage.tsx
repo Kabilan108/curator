@@ -1,10 +1,10 @@
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { useMutation, useQuery } from "convex/react";
+import { BarChart3, RefreshCw, Scale, SkipForward } from "lucide-react";
+import { useEffect, useState } from "react";
+import { StatsPanel } from "@/components/StatsPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { Scale, SkipForward, BarChart3, RefreshCw } from "lucide-react";
-import { StatsPanel } from "@/components/StatsPanel";
+import { api } from "../../convex/_generated/api";
 
 const SESSION_LIMIT = 5;
 
@@ -24,7 +24,9 @@ export function ComparePage() {
   const pair = useQuery((api as any).ranking?.getSmartPair, { mediaType });
   const stats = useQuery((api as any).ranking?.getRankingStats, { mediaType });
   const dueComparisons = useQuery((api as any).ranking?.getDueComparisons);
-  const recordComparison = useMutation((api as any).comparisons?.recordComparison);
+  const recordComparison = useMutation(
+    (api as any).comparisons?.recordComparison,
+  );
   const recordTie = useMutation((api as any).comparisons?.recordTie);
 
   // Reset session count when switching media type
@@ -88,7 +90,8 @@ export function ComparePage() {
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold">Session Complete!</h2>
           <p className="text-neutral-400">
-            You've made {SESSION_LIMIT} comparisons. Take a break or continue refining.
+            You've made {SESSION_LIMIT} comparisons. Take a break or continue
+            refining.
           </p>
           <div className="flex gap-4 justify-center pt-4">
             <Button
@@ -168,7 +171,11 @@ export function ComparePage() {
     return (
       <div className="flex items-center gap-2">
         <span className="text-blue-400">{newRating}</span>
-        <span className={diff >= 0 ? "text-green-400 text-sm" : "text-red-400 text-sm"}>
+        <span
+          className={
+            diff >= 0 ? "text-green-400 text-sm" : "text-red-400 text-sm"
+          }
+        >
           {diff >= 0 ? `+${diff}` : diff}
         </span>
       </div>
@@ -179,9 +186,7 @@ export function ComparePage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center">
         <h1 className="text-3xl font-bold">Compare</h1>
-        <p className="text-neutral-400 mt-2">
-          Which one do you prefer?
-        </p>
+        <p className="text-neutral-400 mt-2">Which one do you prefer?</p>
       </div>
 
       {/* Media type tabs */}
@@ -200,7 +205,9 @@ export function ComparePage() {
 
       {/* Session progress */}
       <div className="flex items-center justify-center gap-2 text-sm text-neutral-400">
-        <span>Comparison {sessionCount + 1} of {SESSION_LIMIT}</span>
+        <span>
+          Comparison {sessionCount + 1} of {SESSION_LIMIT}
+        </span>
         <div className="flex gap-1">
           {Array.from({ length: SESSION_LIMIT }).map((_, i) => (
             <div
@@ -275,7 +282,9 @@ export function ComparePage() {
               </div>
               <div className="text-right space-y-1">
                 <div className="text-neutral-400">Comparisons</div>
-                <div className="text-lg font-medium">{item1.comparisonCount}</div>
+                <div className="text-lg font-medium">
+                  {item1.comparisonCount}
+                </div>
               </div>
             </div>
 
@@ -358,7 +367,9 @@ export function ComparePage() {
               </div>
               <div className="text-right space-y-1">
                 <div className="text-neutral-400">Comparisons</div>
-                <div className="text-lg font-medium">{item2.comparisonCount}</div>
+                <div className="text-lg font-medium">
+                  {item2.comparisonCount}
+                </div>
               </div>
             </div>
 

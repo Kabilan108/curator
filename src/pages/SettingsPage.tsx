@@ -1,7 +1,17 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Button } from "@/components/ui/button";
+import { useMutation, useQuery } from "convex/react";
+import {
+  Check,
+  Download,
+  FileJson,
+  FileSpreadsheet,
+  Moon,
+  Palette,
+  Sun,
+  Trash2,
+  Upload,
+  X,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,19 +23,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Download,
-  Upload,
-  Palette,
-  Moon,
-  Sun,
-  Trash2,
-  FileJson,
-  FileSpreadsheet,
-  Check,
-  X,
-} from "lucide-react";
-import { batchFetchByMalIds, type AniListMedia } from "@/lib/anilist";
+import { Button } from "@/components/ui/button";
+import { type AniListMedia, batchFetchByMalIds } from "@/lib/anilist";
+import { api } from "../../convex/_generated/api";
 
 const ACCENT_COLORS = [
   { name: "Orange", value: "24 95% 53%", class: "bg-orange-500" },
@@ -81,7 +81,9 @@ export function SettingsPage() {
   }, [isDarkMode]);
 
   // Parse MAL XML export and extract anime/manga entries
-  const parseMALXml = (xmlText: string): Array<{
+  const parseMALXml = (
+    xmlText: string,
+  ): Array<{
     malId: number;
     type: "ANIME" | "MANGA";
     title: string;
@@ -109,11 +111,17 @@ export function SettingsPage() {
 
     // Parse anime entries
     animeEntries.forEach((entry) => {
-      const malId = parseInt(entry.querySelector("series_animedb_id")?.textContent || "0");
+      const malId = parseInt(
+        entry.querySelector("series_animedb_id")?.textContent || "0",
+      );
       const title = entry.querySelector("series_title")?.textContent || "";
-      const score = parseInt(entry.querySelector("my_score")?.textContent || "0");
+      const score = parseInt(
+        entry.querySelector("my_score")?.textContent || "0",
+      );
       const status = entry.querySelector("my_status")?.textContent || "";
-      const episodes = parseInt(entry.querySelector("my_watched_episodes")?.textContent || "0");
+      const episodes = parseInt(
+        entry.querySelector("my_watched_episodes")?.textContent || "0",
+      );
 
       if (malId > 0 && title) {
         items.push({
@@ -129,11 +137,17 @@ export function SettingsPage() {
 
     // Parse manga entries
     mangaEntries.forEach((entry) => {
-      const malId = parseInt(entry.querySelector("manga_mangadb_id")?.textContent || "0");
+      const malId = parseInt(
+        entry.querySelector("manga_mangadb_id")?.textContent || "0",
+      );
       const title = entry.querySelector("manga_title")?.textContent || "";
-      const score = parseInt(entry.querySelector("my_score")?.textContent || "0");
+      const score = parseInt(
+        entry.querySelector("my_score")?.textContent || "0",
+      );
       const status = entry.querySelector("my_status")?.textContent || "";
-      const chapters = parseInt(entry.querySelector("my_read_chapters")?.textContent || "0");
+      const chapters = parseInt(
+        entry.querySelector("my_read_chapters")?.textContent || "0",
+      );
 
       if (malId > 0 && title) {
         items.push({
@@ -174,7 +188,11 @@ export function SettingsPage() {
       // Handle .gz files by decompressing first
       let xmlText: string;
       if (file.name.endsWith(".gz")) {
-        setImportProgress({ current: 0, total: 0, status: "Decompressing file..." });
+        setImportProgress({
+          current: 0,
+          total: 0,
+          status: "Decompressing file...",
+        });
         xmlText = await decompressGzip(file);
       } else {
         xmlText = await file.text();
@@ -185,7 +203,9 @@ export function SettingsPage() {
       const items = parseMALXml(xmlText);
 
       if (items.length === 0) {
-        setImportError("No valid entries found in the XML file. Make sure it's a MAL export file.");
+        setImportError(
+          "No valid entries found in the XML file. Make sure it's a MAL export file.",
+        );
         setIsImporting(false);
         return;
       }
@@ -198,14 +218,14 @@ export function SettingsPage() {
       });
 
       const anilistData = await batchFetchByMalIds(
-        items.map((item) => ({ malId: item.malId, type: item.type })),
+        items.map((item) => ({ malId: item.malId, type: item.type, title: item.title })),
         (current, total) => {
           setImportProgress({
             current,
             total,
             status: `Fetching metadata: ${current}/${total}`,
           });
-        }
+        },
       );
 
       // Phase 2: Import items to database
@@ -237,9 +257,10 @@ export function SettingsPage() {
             type: item.type,
             title: anilistMedia?.title?.romaji || item.title,
             titleEnglish: anilistMedia?.title?.english || undefined,
-            coverImage: anilistMedia?.coverImage?.extraLarge ||
-                        anilistMedia?.coverImage?.large ||
-                        `https://cdn.myanimelist.net/images/${item.type.toLowerCase()}/${item.malId}.jpg`,
+            coverImage:
+              anilistMedia?.coverImage?.extraLarge ||
+              anilistMedia?.coverImage?.large ||
+              `https://cdn.myanimelist.net/images/${item.type.toLowerCase()}/${item.malId}.jpg`,
             genres: anilistMedia?.genres || [],
             malScore: item.score,
             malStatus: item.status,
@@ -270,7 +291,9 @@ export function SettingsPage() {
       setImportComplete(true);
     } catch (error) {
       console.error("Import failed:", error);
-      setImportError("Failed to parse the file. Make sure it's a valid MAL export (.xml or .xml.gz).");
+      setImportError(
+        "Failed to parse the file. Make sure it's a valid MAL export (.xml or .xml.gz).",
+      );
     } finally {
       setIsImporting(false);
       // Reset the file input
@@ -331,9 +354,10 @@ export function SettingsPage() {
       item.malId,
     ]);
 
-    const csv = [headers.join(","), ...rows.map((row: string[]) => row.join(","))].join(
-      "\n"
-    );
+    const csv = [
+      headers.join(","),
+      ...rows.map((row: string[]) => row.join(",")),
+    ].join("\n");
 
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -423,8 +447,9 @@ export function SettingsPage() {
 
         <div className="bg-neutral-900 border border-neutral-800 p-4 space-y-4">
           <p className="text-sm text-neutral-400">
-            Import your anime/manga from MAL using the XML export. Scores will be
-            converted to Elo ratings (MAL 10 = 1800, MAL 7 = 1500, MAL 1 = 900).
+            Import your anime/manga from MAL using the XML export. Scores will
+            be converted to Elo ratings (MAL 10 = 1800, MAL 7 = 1500, MAL 1 =
+            900).
           </p>
 
           <div className="text-sm space-y-2">
@@ -448,7 +473,9 @@ export function SettingsPage() {
 
           {importProgress && (
             <div className="space-y-2">
-              <div className="text-sm text-neutral-400">{importProgress.status}</div>
+              <div className="text-sm text-neutral-400">
+                {importProgress.status}
+              </div>
               {importProgress.total > 0 && (
                 <div className="w-full bg-neutral-800 h-2">
                   <div
@@ -513,8 +540,8 @@ export function SettingsPage() {
 
           {fullExport && (
             <div className="text-xs text-neutral-500">
-              {fullExport.stats.totalItems} items, {fullExport.stats.totalComparisons}{" "}
-              comparisons
+              {fullExport.stats.totalItems} items,{" "}
+              {fullExport.stats.totalComparisons} comparisons
             </div>
           )}
         </div>
@@ -532,14 +559,12 @@ export function SettingsPage() {
           <div className="space-y-2">
             <div className="font-medium">Clear All Data</div>
             <p className="text-sm text-neutral-400">
-              Delete all library items, media entries, and comparisons. Use this before
-              re-importing your list.
+              Delete all library items, media entries, and comparisons. Use this
+              before re-importing your list.
             </p>
             <AlertDialog>
               <AlertDialogTrigger
-                render={
-                  <Button variant="destructive" size="sm" />
-                }
+                render={<Button variant="destructive" size="sm" />}
               >
                 Clear All Data
               </AlertDialogTrigger>
@@ -547,8 +572,9 @@ export function SettingsPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Clear All Data?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will permanently delete ALL your library items, media entries,
-                    and comparison history. This action cannot be undone.
+                    This will permanently delete ALL your library items, media
+                    entries, and comparison history. This action cannot be
+                    undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -575,14 +601,12 @@ export function SettingsPage() {
           <div className="space-y-2">
             <div className="font-medium">Reset All Rankings</div>
             <p className="text-sm text-neutral-400">
-              Reset all Elo ratings to 1500 and clear comparison history. Items will
-              remain in your library.
+              Reset all Elo ratings to 1500 and clear comparison history. Items
+              will remain in your library.
             </p>
             <AlertDialog>
               <AlertDialogTrigger
-                render={
-                  <Button variant="destructive" size="sm" />
-                }
+                render={<Button variant="destructive" size="sm" />}
               >
                 Reset Rankings
               </AlertDialogTrigger>
@@ -590,9 +614,9 @@ export function SettingsPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Reset All Rankings?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This will reset all Elo ratings to 1500 and delete all comparison
-                    history. Your library items will be preserved. This action cannot be
-                    undone.
+                    This will reset all Elo ratings to 1500 and delete all
+                    comparison history. Your library items will be preserved.
+                    This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>

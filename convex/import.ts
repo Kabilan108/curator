@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, action } from "./_generated/server";
 import { api } from "./_generated/api";
+import { action, mutation } from "./_generated/server";
 
 // MAL score to Elo mapping
 // MAL 10 → 1800, MAL 7 → 1500 (baseline), MAL 1 → 900
@@ -13,7 +13,7 @@ function malScoreToElo(malScore: number | null): number {
 // MAL status to our status mapping
 function malStatusToWatchStatus(
   malStatus: string,
-  mediaType: "ANIME" | "MANGA"
+  mediaType: "ANIME" | "MANGA",
 ): "COMPLETED" | "WATCHING" | "PLAN_TO_WATCH" | "DROPPED" | "ON_HOLD" {
   switch (malStatus) {
     case "completed":

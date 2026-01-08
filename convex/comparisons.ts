@@ -10,7 +10,7 @@ function calculateElo(
   winnerRating: number,
   loserRating: number,
   winnerComparisons: number,
-  loserComparisons: number
+  loserComparisons: number,
 ): { winnerNew: number; loserNew: number } {
   // K-factor decreases as items get more comparisons (more confidence)
   // Start high (40) for new items, decrease to 16 for well-established ratings
@@ -18,10 +18,8 @@ function calculateElo(
   const loserK = Math.max(16, 40 - loserComparisons * 2);
 
   // Expected scores
-  const expectedWinner =
-    1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
-  const expectedLoser =
-    1 / (1 + Math.pow(10, (winnerRating - loserRating) / 400));
+  const expectedWinner = 1 / (1 + 10 ** ((loserRating - winnerRating) / 400));
+  const expectedLoser = 1 / (1 + 10 ** ((winnerRating - loserRating) / 400));
 
   // New ratings
   const winnerNew = Math.round(winnerRating + winnerK * (1 - expectedWinner));
@@ -89,7 +87,7 @@ export const recordComparison = mutation({
       winner.eloRating,
       loser.eloRating,
       winner.comparisonCount,
-      loser.comparisonCount
+      loser.comparisonCount,
     );
 
     const winnerNewCount = winner.comparisonCount + 1;
@@ -202,7 +200,7 @@ export const getHistory = query({
           winner: winner ? { ...winner, media: winnerMedia } : null,
           loser: loser ? { ...loser, media: loserMedia } : null,
         };
-      })
+      }),
     );
 
     return history;
