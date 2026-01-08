@@ -8,13 +8,21 @@
  * @module
  */
 
+import type * as comparisons from "../comparisons.js";
+import type * as library from "../library.js";
+import type * as media from "../media.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  comparisons: typeof comparisons;
+  library: typeof library;
+  media: typeof media;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
