@@ -1,0 +1,125 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  // Media items from AniList - the master catalog
+  mediaItems: defineTable({
+    anilistId: v.number(),
+    malId: v.optional(v.number()),
+    type: v.union(v.literal("ANIME"), v.literal("MANGA")),
+
+    // Title variants
+    title: v.string(),
+    titleEnglish: v.optional(v.string()),
+    titleJapanese: v.optional(v.string()),
+
+    // Rich metadata from AniList
+    description: v.optional(v.string()),
+    coverImage: v.string(),
+    bannerImage: v.optional(v.string()),
+
+    // Arrays of strings
+    genres: v.array(v.string()),
+    tags: v.array(v.string()),
+
+    // Media details
+    format: v.optional(v.string()), // TV, MOVIE, MANGA, etc.
+    status: v.optional(v.string()), // FINISHED, RELEASING, etc.
+    episodes: v.optional(v.number()),
+    chapters: v.optional(v.number()),
+
+    // Scoring and popularity from AniList
+    averageScore: v.optional(v.number()),
+    popularity: v.optional(v.number()),
+
+    // Dates as objects (AniList format)
+    startDate: v.optional(v.object({
+      year: v.optional(v.number()),
+      month: v.optional(v.number()),
+      day: v.optional(v.number()),
+    })),
+    endDate: v.optional(v.object({
+      year: v.optional(v.number()),
+      month: v.optional(v.number()),
+      day: v.optional(v.number()),
+    })),
+  })
+    .index("by_anilist_id", ["anilistId"])
+    .index("by_mal_id", ["malId"])
+    .index("by_type", ["type"]),
+
+  // User's personal library - items they're tracking
+  userLibrary: defineTable({
+    mediaItemId: v.id("mediaItems"),
+
+    // Elo ranking system
+    eloRating: v.number(), // Default: 1500
+    comparisonCount: v.number(), // Default: 0
+
+    // User's custom tags
+    customTags: v.array(v.string()),
+
+    // Watch/read status
+    watchStatus: v.union(
+      v.literal("COMPLETED"),
+      v.literal("WATCHING"),
+      v.literal("PLAN_TO_WATCH"),
+      v.literal("DROPPED"),
+      v.literal("ON_HOLD")
+    ),
+
+    // Personal notes
+    userNotes: v.optional(v.string()),
+
+    // Timestamps
+    addedAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_media_item", ["mediaItemId"])
+    .index("by_elo_rating", ["eloRating"])
+    .index("by_watch_status", ["watchStatus"])
+    .index("by_added_at", ["addedAt"]),
+
+  // Comparison history for Elo calculations
+  comparisons: defineTable({
+    winnerId: v.id("userLibrary"),
+    loserId: v.id("userLibrary"),
+    createdAt: v.number(),
+  })
+    .index("by_winner", ["winnerId"])
+    .index("by_loser", ["loserId"])
+    .index("by_created_at", ["createdAt"]),
+
+  // Custom fields definition
+  customFields: defineTable({
+    fieldName: v.string(),
+    fieldType: v.union(
+      v.literal("TEXT"),
+      v.literal("NUMBER"),
+      v.literal("SELECT"),
+      v.literal("MULTI_SELECT"),
+      v.literal("DATE"),
+      v.literal("RATING")
+    ),
+    // For SELECT and MULTI_SELECT types
+    options: v.optional(v.array(v.string())),
+    createdAt: v.number(),
+  })
+    .index("by_field_name", ["fieldName"])
+    .index("by_created_at", ["createdAt"]),
+
+  // Custom field values for library items
+  customFieldValues: defineTable({
+    userLibraryId: v.id("userLibrary"),
+    customFieldId: v.id("customFields"),
+
+    // Value stored as string, number, or array based on field type
+    // We'll use a union to handle different types
+    valueText: v.optional(v.string()),
+    valueNumber: v.optional(v.number()),
+    valueArray: v.optional(v.array(v.string())),
+  })
+    .index("by_user_library", ["userLibraryId"])
+    .index("by_custom_field", ["customFieldId"])
+    .index("by_user_library_and_field", ["userLibraryId", "customFieldId"]),
+});
