@@ -1,6 +1,6 @@
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { ChevronDown, Filter } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LibraryCard } from "@/components/LibraryCard";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,7 @@ const STORAGE_KEY = "curator-library-tab";
 
 export function HomePage() {
   const library = useQuery((api as any).library?.getByElo);
+  const removeFromLibrary = useMutation((api as any).library.removeFromLibrary);
 
   // Tab state with localStorage persistence
   const [activeTab, setActiveTab] = useState<MediaType>(() => {
@@ -117,15 +118,15 @@ export function HomePage() {
     }
   }, [filteredByGenre, sortBy]);
 
-  const toggleGenre = (genre: string) => {
+  const toggleGenre = useCallback((genre: string) => {
     setSelectedGenres((prev) =>
       prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
     );
-  };
+  }, []);
 
-  const clearGenres = () => {
+  const clearGenres = useCallback(() => {
     setSelectedGenres([]);
-  };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -288,6 +289,7 @@ export function HomePage() {
                   sortBy === "elo" ? index + 1 : (eloRankMap.get(item._id) ?? 0)
                 }
                 totalItems={currentTabItems.length}
+                onRemove={removeFromLibrary}
               />
             ))}
           </div>

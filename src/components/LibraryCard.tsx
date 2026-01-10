@@ -1,5 +1,5 @@
-import { useMutation } from "convex/react";
 import { Trash2 } from "lucide-react";
+import { memo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { api } from "../../convex/_generated/api";
 
 type WatchStatus =
   | "COMPLETED"
@@ -39,6 +38,7 @@ interface LibraryCardProps {
   item: LibraryItem;
   rank: number;
   totalItems: number;
+  onRemove: (args: { id: string }) => Promise<void>;
 }
 
 const statusConfig: Record<WatchStatus, { label: string; className: string }> =
@@ -65,9 +65,12 @@ const statusConfig: Record<WatchStatus, { label: string; className: string }> =
     },
   };
 
-export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
-  const removeFromLibrary = useMutation((api as any).library.removeFromLibrary);
-
+export const LibraryCard = memo(function LibraryCard({
+  item,
+  rank,
+  totalItems,
+  onRemove,
+}: LibraryCardProps) {
   // Calculate percentile score (0-10, inverted so #1 is 10.0)
   const calculateScore = (): string | null => {
     if (totalItems < 5) return null;
@@ -80,8 +83,8 @@ export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
   const statusInfo = statusConfig[item.watchStatus];
   const displayGenres = item.media?.genres?.slice(0, 2) || [];
 
-  const handleRemove = async () => {
-    await removeFromLibrary({ id: item._id });
+  const handleRemove = () => {
+    onRemove({ id: item._id });
   };
 
   return (
@@ -92,6 +95,7 @@ export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
           <img
             src={item.media.coverImage}
             alt={item.media.title}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         )}
@@ -180,4 +184,4 @@ export function LibraryCard({ item, rank, totalItems }: LibraryCardProps) {
       </div>
     </div>
   );
-}
+});

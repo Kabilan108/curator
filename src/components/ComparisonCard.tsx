@@ -40,12 +40,14 @@ export function ComparisonCard({
           <img
             src={item.media.bannerImage}
             alt={item.media.title}
+            loading="lazy"
             className="w-full h-full object-cover"
           />
         ) : (
           <img
             src={item.media?.coverImage}
             alt={item.media?.title}
+            loading="lazy"
             className="w-full h-full object-cover blur-lg scale-110"
           />
         )}
@@ -59,6 +61,7 @@ export function ComparisonCard({
               <img
                 src={item.media.coverImage}
                 alt={item.media.title}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             )}
