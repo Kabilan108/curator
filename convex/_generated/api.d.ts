@@ -8,13 +8,14 @@
  * @module
  */
 
-import type * as anilist from "../anilist.js";
 import type * as comparisons from "../comparisons.js";
 import type * as export_ from "../export.js";
 import type * as import_ from "../import.js";
 import type * as importJob from "../importJob.js";
 import type * as importJobMutations from "../importJobMutations.js";
+import type * as lib_constants from "../lib/constants.js";
 import type * as lib_logger from "../lib/logger.js";
+import type * as lib_malUtils from "../lib/malUtils.js";
 import type * as library from "../library.js";
 import type * as media from "../media.js";
 import type * as ranking from "../ranking.js";
@@ -27,13 +28,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  anilist: typeof anilist;
   comparisons: typeof comparisons;
   export: typeof export_;
   import: typeof import_;
   importJob: typeof importJob;
   importJobMutations: typeof importJobMutations;
+  "lib/constants": typeof lib_constants;
   "lib/logger": typeof lib_logger;
+  "lib/malUtils": typeof lib_malUtils;
   library: typeof library;
   media: typeof media;
   ranking: typeof ranking;

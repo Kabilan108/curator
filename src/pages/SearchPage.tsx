@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "convex/react";
-import { Check, ChevronDown, Plus, Search } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { SearchResultCard } from "@/components/SearchResultCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { type AniListMedia, searchAniList } from "@/lib/anilist";
@@ -13,61 +13,6 @@ type WatchStatus =
   | "PLAN_TO_WATCH"
   | "DROPPED"
   | "ON_HOLD";
-
-interface StatusPickerProps {
-  mediaType: "ANIME" | "MANGA";
-  onSelect: (status: WatchStatus) => void;
-  onClose: () => void;
-}
-
-function StatusPicker({ mediaType, onSelect, onClose }: StatusPickerProps) {
-  const pickerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        pickerRef.current &&
-        !pickerRef.current.contains(event.target as Node)
-      ) {
-        onClose();
-      }
-    }
-
-    // Use setTimeout to avoid immediate trigger on the same click that opened the picker
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("click", handleClickOutside);
-    }, 0);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [onClose]);
-
-  const watchingLabel = mediaType === "ANIME" ? "Watching" : "Reading";
-
-  return (
-    <div
-      ref={pickerRef}
-      className="absolute right-0 bottom-full mb-1 z-10 bg-neutral-800 border border-neutral-700 shadow-lg min-w-[140px]"
-    >
-      <button
-        type="button"
-        onClick={() => onSelect("WATCHING")}
-        className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
-      >
-        {watchingLabel}
-      </button>
-      <button
-        type="button"
-        onClick={() => onSelect("COMPLETED")}
-        className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
-      >
-        Completed
-      </button>
-    </div>
-  );
-}
 
 export function SearchPage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -228,125 +173,24 @@ export function SearchPage() {
       {results.length > 0 ? (
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {results.map((media) => {
-              const isAddedThisSession = addedItems.has(media.id);
-              const isInLibrary = libraryIdsSet.has(media.id);
-              const showInLibrary = isInLibrary || isAddedThisSession;
-
-              return (
-                <div
-                  key={media.id}
-                  className="bg-neutral-900 border border-neutral-800 overflow-hidden flex gap-4 p-4"
-                >
-                  {/* Cover image */}
-                  <div className="w-24 h-36 bg-neutral-800 overflow-hidden flex-shrink-0">
-                    <img
-                      src={media.coverImage.large}
-                      alt={media.title.romaji}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-
-                  {/* Details */}
-                  <div className="flex-1 min-w-0 space-y-2">
-                    <div>
-                      <h3 className="font-medium line-clamp-2">
-                        {media.title.english || media.title.romaji}
-                      </h3>
-                      {media.title.english && (
-                        <p className="text-sm text-neutral-400 line-clamp-1">
-                          {media.title.romaji}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-xs">
-                        {media.type}
-                      </Badge>
-                      {media.format && (
-                        <Badge variant="outline" className="text-xs">
-                          {media.format}
-                        </Badge>
-                      )}
-                      {media.status && (
-                        <Badge variant="outline" className="text-xs">
-                          {media.status}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {media.genres.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {media.genres.slice(0, 3).map((genre) => (
-                          <span
-                            key={genre}
-                            className="text-xs text-neutral-500 bg-neutral-800 px-2 py-0.5"
-                          >
-                            {genre}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="text-sm space-x-3">
-                        {media.averageScore && (
-                          <span className="text-neutral-400">
-                            {media.averageScore}%
-                          </span>
-                        )}
-                        {(media.episodes || media.chapters) && (
-                          <span className="text-neutral-400">
-                            {media.type === "ANIME"
-                              ? `${media.episodes} eps`
-                              : `${media.chapters} ch`}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="relative">
-                        {showInLibrary ? (
-                          <Badge className="bg-green-600 hover:bg-green-600 text-white cursor-default">
-                            <Check className="w-3 h-3 mr-1" />
-                            In Library
-                          </Badge>
-                        ) : (
-                          <>
-                            <Button
-                              size="sm"
-                              onClick={() =>
-                                setActiveStatusPicker(
-                                  activeStatusPicker === media.id
-                                    ? null
-                                    : media.id,
-                                )
-                              }
-                            >
-                              <Plus className="w-4 h-4 mr-1" />
-                              Add
-                              <ChevronDown className="w-3 h-3 ml-1" />
-                            </Button>
-                            {activeStatusPicker === media.id && (
-                              <StatusPicker
-                                mediaType={media.type}
-                                onSelect={(status) =>
-                                  handleAddToLibrary(media, status)
-                                }
-                                onClose={() => setActiveStatusPicker(null)}
-                              />
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {results.map((media) => (
+              <SearchResultCard
+                key={media.id}
+                media={media}
+                isInLibrary={
+                  libraryIdsSet.has(media.id) || addedItems.has(media.id)
+                }
+                showStatusPicker={activeStatusPicker === media.id}
+                onToggleStatusPicker={() =>
+                  setActiveStatusPicker(
+                    activeStatusPicker === media.id ? null : media.id,
+                  )
+                }
+                onAddToLibrary={(status) => handleAddToLibrary(media, status)}
+              />
+            ))}
           </div>
 
-          {/* Load More button */}
           {hasNextPage && (
             <div className="flex justify-center pt-4">
               <Button

@@ -1,9 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-
-// Constants
-const DAYS_MS = 24 * 60 * 60 * 1000;
-const NEW_ITEM_THRESHOLD = 5;
+import { DAYS_MS, NEW_ITEM_THRESHOLD } from "./lib/constants";
 
 // Calculate new Elo ratings
 function calculateElo(

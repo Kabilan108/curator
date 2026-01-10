@@ -1,10 +1,7 @@
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
-
-// Constants for the pairing algorithm
-const NEW_ITEM_THRESHOLD = 5; // Items with fewer comparisons are "new"
-const CLOSE_RATING_RANGE = 100; // Match established items within ±100 Elo
+import { CLOSE_RATING_RANGE, NEW_ITEM_THRESHOLD } from "./lib/constants";
 
 // Get a smart pair for comparison, filtered by media type
 export const getSmartPair = query({
@@ -57,12 +54,7 @@ export const getSmartPair = query({
         (a, b) => a.comparisonCount - b.comparisonCount,
       )[0];
 
-      // Binary search: compare against items at strategic percentiles
-      const opponent = findBinarySearchOpponent(
-        primaryItem,
-        filteredItems,
-        sortedByElo,
-      );
+      const opponent = findBinarySearchOpponent(primaryItem, sortedByElo);
       if (opponent) {
         return { item1: primaryItem, item2: opponent };
       }
@@ -83,11 +75,7 @@ export const getSmartPair = query({
       });
 
       const primaryItem = byLastCompared[0];
-      const opponent = findCloseRatingOpponent(
-        primaryItem,
-        established,
-        sortedByElo,
-      );
+      const opponent = findCloseRatingOpponent(primaryItem, established);
       if (opponent) {
         return { item1: primaryItem, item2: opponent };
       }
@@ -99,14 +87,13 @@ export const getSmartPair = query({
   },
 });
 
-// Find opponent for binary search placement of new items
 function findBinarySearchOpponent<
   T extends {
     _id: Id<"userLibrary">;
     comparisonCount: number;
     eloRating: number;
   },
->(primaryItem: T, _allItems: T[], sortedByElo: T[]): T | null {
+>(primaryItem: T, sortedByElo: T[]): T | null {
   const totalItems = sortedByElo.length;
   if (totalItems < 2) return null;
 
@@ -158,14 +145,13 @@ function findBinarySearchOpponent<
   return opponent;
 }
 
-// Find opponent within close rating range for established items
 function findCloseRatingOpponent<
   T extends {
     _id: Id<"userLibrary">;
     eloRating: number;
     lastComparedAt?: number;
   },
->(primaryItem: T, allItems: T[], _sortedByElo: T[]): T | null {
+>(primaryItem: T, allItems: T[]): T | null {
   const targetRating = primaryItem.eloRating;
 
   // Find items within the close rating range
@@ -197,7 +183,6 @@ function findCloseRatingOpponent<
   return sortedByRecency[0];
 }
 
-// Generic opponent finder
 function findOpponent<
   T extends {
     _id: Id<"userLibrary">;
@@ -206,9 +191,9 @@ function findOpponent<
   },
 >(primaryItem: T, allItems: T[], sortedByElo: T[]): T | null {
   if (primaryItem.comparisonCount < NEW_ITEM_THRESHOLD) {
-    return findBinarySearchOpponent(primaryItem, allItems, sortedByElo);
+    return findBinarySearchOpponent(primaryItem, sortedByElo);
   }
-  return findCloseRatingOpponent(primaryItem, allItems, sortedByElo);
+  return findCloseRatingOpponent(primaryItem, allItems);
 }
 
 // Get stats about the ranking

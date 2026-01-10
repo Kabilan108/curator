@@ -84,7 +84,19 @@ export function HomePage() {
     );
   }, [currentTabItems, selectedGenres]);
 
-  // Sort items
+  // Pre-compute Elo ranks for all items (stable, not affected by current sort)
+  const eloRankMap = useMemo(() => {
+    const sortedByElo = [...currentTabItems].sort(
+      (a: any, b: any) => b.eloRating - a.eloRating,
+    );
+    const rankMap = new Map<string, number>();
+    sortedByElo.forEach((item: any, index: number) => {
+      rankMap.set(item._id, index + 1);
+    });
+    return rankMap;
+  }, [currentTabItems]);
+
+  // Sort items for display
   const sortedItems = useMemo(() => {
     const items = [...filteredByGenre];
     switch (sortBy) {
@@ -268,22 +280,16 @@ export function HomePage() {
 
           {/* Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {sortedItems.map((item: any, index: number) => {
-              // Calculate rank based on Elo position in full list (not filtered)
-              const eloRank =
-                currentTabItems
-                  .sort((a: any, b: any) => b.eloRating - a.eloRating)
-                  .findIndex((i: any) => i._id === item._id) + 1;
-
-              return (
-                <LibraryCard
-                  key={item._id}
-                  item={item}
-                  rank={sortBy === "elo" ? index + 1 : eloRank}
-                  totalItems={currentTabItems.length}
-                />
-              );
-            })}
+            {sortedItems.map((item: any, index: number) => (
+              <LibraryCard
+                key={item._id}
+                item={item}
+                rank={
+                  sortBy === "elo" ? index + 1 : (eloRankMap.get(item._id) ?? 0)
+                }
+                totalItems={currentTabItems.length}
+              />
+            ))}
           </div>
         </>
       )}

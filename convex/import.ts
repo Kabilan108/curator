@@ -1,37 +1,7 @@
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { mutation } from "./_generated/server";
-
-// MAL score to Elo mapping
-// MAL 10 → 1800, MAL 7 → 1500 (baseline), MAL 1 → 900
-function malScoreToElo(malScore: number | null): number {
-  if (!malScore || malScore === 0) return 1500; // Unscored = baseline
-  // Linear interpolation: score 1-10 maps to 900-1800
-  return 900 + (malScore - 1) * 100;
-}
-
-// MAL status to our status mapping
-function malStatusToWatchStatus(
-  malStatus: string,
-  _mediaType: "ANIME" | "MANGA",
-): "COMPLETED" | "WATCHING" | "PLAN_TO_WATCH" | "DROPPED" | "ON_HOLD" {
-  switch (malStatus) {
-    case "completed":
-      return "COMPLETED";
-    case "watching":
-    case "reading":
-      return "WATCHING";
-    case "plan_to_watch":
-    case "plan_to_read":
-      return "PLAN_TO_WATCH";
-    case "dropped":
-      return "DROPPED";
-    case "on_hold":
-      return "ON_HOLD";
-    default:
-      return "PLAN_TO_WATCH";
-  }
-}
+import { malScoreToElo, malStatusToWatchStatus } from "./lib/malUtils";
 
 // Import a single item from MAL data
 export const importMalItem = mutation({
@@ -88,7 +58,7 @@ export const importMalItem = mutation({
     // Add to library with mapped Elo
     const now = Date.now();
     const eloRating = malScoreToElo(args.malScore ?? null);
-    const watchStatus = malStatusToWatchStatus(args.malStatus, args.type);
+    const watchStatus = malStatusToWatchStatus(args.malStatus);
 
     await ctx.db.insert("userLibrary", {
       mediaItemId,

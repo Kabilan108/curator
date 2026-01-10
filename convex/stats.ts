@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
-
-const DAYS_MS = 24 * 60 * 60 * 1000;
+import { DAYS_MS } from "./lib/constants";
 
 // Get comprehensive user stats
 export const getUserStats = query({
