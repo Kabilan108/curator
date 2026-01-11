@@ -43,9 +43,9 @@ interface LibraryCardProps {
 }
 
 const STATUS_CYCLE: WatchStatus[] = [
-  "COMPLETED",
-  "WATCHING",
   "PLAN_TO_WATCH",
+  "WATCHING",
+  "COMPLETED",
   "ON_HOLD",
   "DROPPED",
 ];
@@ -123,6 +123,7 @@ export const LibraryCard = memo(function LibraryCard({
   };
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: card with nested interactive elements requires div wrapper
     <div
       className="bg-neutral-900 overflow-hidden border border-neutral-800 group relative cursor-pointer transition-all duration-200 hover:border-neutral-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
       onClick={onClick}
@@ -158,23 +159,22 @@ export const LibraryCard = memo(function LibraryCard({
           )}
         </div>
 
-        {/* Remove Button - Shows on Hover */}
-        <span
-          className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        {/* Remove Button - Always visible on mobile, hover on desktop */}
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: stop propagation wrapper for nested button */}
+        {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard handled by nested button */}
+        <div
+          className="absolute bottom-2 right-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
           onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => e.stopPropagation()}
         >
           <AlertDialog>
-            <AlertDialogTrigger
-              render={
-                <Button
-                  variant="destructive"
-                  size="icon-xs"
-                  className="bg-red-600/90 hover:bg-red-600 border-none"
-                />
-              }
-            >
-              <Trash2 className="size-3" />
+            <AlertDialogTrigger>
+              <Button
+                variant="destructive"
+                size="icon-xs"
+                className="bg-red-600/90 hover:bg-red-600 border-none"
+              >
+                <Trash2 className="size-3" />
+              </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -193,7 +193,7 @@ export const LibraryCard = memo(function LibraryCard({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </span>
+        </div>
       </div>
 
       {/* Card Content */}

@@ -32,9 +32,9 @@ export function ComparisonCard({
       disabled={disabled}
       className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-blue-500 transition-all duration-200 disabled:opacity-50 text-left focus:outline-none focus:border-blue-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 w-full"
     >
-      {/* Mobile: Compact overlay design */}
-      <div className="md:hidden relative">
-        <div className="aspect-[3/4] bg-neutral-800 relative overflow-hidden">
+      {/* Unified overlay design for mobile and desktop */}
+      <div className="relative">
+        <div className="aspect-[4/5] md:aspect-[3/4] bg-neutral-800 relative overflow-hidden">
           <img
             src={item.mediaCoverImage}
             alt={item.mediaTitle}
@@ -44,9 +44,9 @@ export function ComparisonCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
           {/* Overlay content */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-2">
+          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 space-y-2 md:space-y-3">
             <h3
-              className="text-lg font-bold line-clamp-2 leading-tight"
+              className="text-lg md:text-xl font-bold line-clamp-2 leading-tight"
               title={item.mediaTitle}
             >
               {item.mediaTitle}
@@ -59,95 +59,27 @@ export function ComparisonCard({
               {item.mediaGenres.slice(0, 2).map((genre) => (
                 <span
                   key={genre}
-                  className="text-[10px] text-neutral-300 bg-white/10 px-1.5 py-0.5"
+                  className="text-[10px] md:text-xs text-neutral-300 bg-white/10 px-1.5 py-0.5"
                 >
                   {genre}
                 </span>
               ))}
             </div>
 
-            <div className="flex items-center justify-between text-sm pt-1">
-              <div className="flex items-center gap-1">
-                <span className="text-neutral-400 text-xs">Rating:</span>
-                <span className="font-mono font-bold">{ratingDisplay}</span>
+            <div className="flex items-center justify-between text-sm md:text-base pt-1">
+              <div className="flex items-center gap-1 md:gap-2">
+                <span className="text-neutral-400 text-xs md:text-sm">
+                  Rating:
+                </span>
+                <span className="font-mono font-bold text-base md:text-xl">
+                  {ratingDisplay}
+                </span>
               </div>
-              <div className="text-neutral-400 text-xs">
+              <div className="text-neutral-400 text-xs md:text-sm">
                 {item.comparisonCount} comps
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Desktop: Full layout */}
-      <div className="hidden md:block">
-        <div className="aspect-video bg-neutral-800 relative overflow-hidden">
-          {item.mediaBannerImage ? (
-            <img
-              src={item.mediaBannerImage}
-              alt={item.mediaTitle}
-              loading="lazy"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <img
-              src={item.mediaCoverImage}
-              alt={item.mediaTitle}
-              loading="lazy"
-              className="w-full h-full object-cover blur-lg scale-110"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent" />
-        </div>
-
-        <div className="p-6 space-y-4">
-          <div className="flex gap-4">
-            <div className="w-20 h-28 bg-neutral-800 overflow-hidden flex-shrink-0">
-              <img
-                src={item.mediaCoverImage}
-                alt={item.mediaTitle}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3
-                className="text-xl font-bold mb-2 line-clamp-2"
-                title={item.mediaTitle}
-              >
-                {item.mediaTitle}
-              </h3>
-              <div className="flex flex-wrap gap-1">
-                <Badge variant="secondary" className="text-xs">
-                  {item.mediaType}
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <div className="space-y-1">
-              <div className="text-neutral-400">Rating</div>
-              <div className="text-2xl font-bold font-mono">{ratingDisplay}</div>
-            </div>
-            <div className="text-right space-y-1">
-              <div className="text-neutral-400">Comparisons</div>
-              <div className="text-lg font-medium">{item.comparisonCount}</div>
-            </div>
-          </div>
-
-          {item.mediaGenres.length > 0 && (
-            <div className="flex flex-wrap gap-1">
-              {item.mediaGenres.slice(0, 4).map((genre) => (
-                <span
-                  key={genre}
-                  className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       </div>
     </button>

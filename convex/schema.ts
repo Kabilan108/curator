@@ -86,6 +86,9 @@ export default defineSchema({
     // Personal notes
     userNotes: v.optional(v.string()),
 
+    // Custom title override (user can rename items)
+    customTitle: v.optional(v.string()),
+
     // Comparison scheduling
     lastComparedAt: v.optional(v.number()),
     nextComparisonDue: v.optional(v.number()),

@@ -1,4 +1,6 @@
 import { useMutation, useQuery } from "convex/react";
+import { Pencil } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
@@ -97,6 +99,10 @@ export function MediaDetailSheet({
   onOpenChange,
 }: MediaDetailSheetProps) {
   const isMobile = useIsMobile();
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState("");
+  const titleInputRef = useRef<HTMLInputElement>(null);
+
   const data = useQuery(
     api.library.getByIdWithDetails,
     libraryItemId ? { id: libraryItemId } : "skip",
@@ -109,12 +115,92 @@ export function MediaDetailSheet({
     }
   };
 
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditingTitle && titleInputRef.current) {
+      titleInputRef.current.focus();
+      titleInputRef.current.select();
+    }
+  }, [isEditingTitle]);
+
+  // Reset edit state when sheet closes
+  useEffect(() => {
+    if (!open) {
+      setIsEditingTitle(false);
+    }
+  }, [open]);
+
   if (!data) {
     return null;
   }
 
   const { media, ...libraryItem } = data;
   const mediaType = media.type;
+  const defaultTitle = media.titleEnglish || media.title;
+  const displayTitle = libraryItem.customTitle || defaultTitle;
+
+  const handleStartEdit = () => {
+    setEditedTitle(displayTitle);
+    setIsEditingTitle(true);
+  };
+
+  const handleSaveTitle = () => {
+    if (libraryItemId && editedTitle.trim()) {
+      const trimmed = editedTitle.trim();
+      // Only save if different from default and current custom title
+      if (trimmed !== defaultTitle || libraryItem.customTitle) {
+        updateItem({
+          id: libraryItemId,
+          customTitle: trimmed === defaultTitle ? undefined : trimmed,
+        });
+      }
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSaveTitle();
+    } else if (e.key === "Escape") {
+      setIsEditingTitle(false);
+    }
+  };
+
+  const statusPicker = isMobile ? (
+    <div className="flex flex-wrap gap-1.5">
+      {(Object.keys(statusConfig) as WatchStatus[]).map((status) => {
+        const config = statusConfig[status];
+        const isActive = libraryItem.watchStatus === status;
+        return (
+          <button
+            key={status}
+            type="button"
+            onClick={() => handleStatusChange(status)}
+            className={`text-[10px] px-2 py-1 border transition-colors ${
+              isActive
+                ? config.className
+                : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
+            }`}
+          >
+            {getStatusLabel(status, mediaType)}
+          </button>
+        );
+      })}
+    </div>
+  ) : (
+    <Select value={libraryItem.watchStatus} onValueChange={handleStatusChange}>
+      <SelectTrigger size="sm" className="h-6 text-[11px] w-auto">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {(Object.keys(statusConfig) as WatchStatus[]).map((status) => (
+          <SelectItem key={status} value={status}>
+            {getStatusLabel(status, mediaType)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
 
   const content = (
     <div className="flex flex-col gap-4 overflow-y-auto max-h-[70vh] md:max-h-none">
@@ -125,18 +211,15 @@ export function MediaDetailSheet({
           className="w-24 h-36 object-cover shrink-0"
         />
         <div className="flex flex-col gap-2 min-w-0">
-          <h3 className="font-medium text-base leading-tight">
-            {media.titleEnglish || media.title}
-          </h3>
           {media.titleEnglish && media.title !== media.titleEnglish && (
             <p className="text-xs text-neutral-400">{media.title}</p>
           )}
 
-          <div className="flex flex-wrap gap-1.5 mt-1">
+          <div className="flex flex-wrap gap-1.5">
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
               {mediaType}
             </Badge>
-            {media.format && (
+            {media.format && media.format !== mediaType && (
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
                 {media.format}
               </Badge>
@@ -148,23 +231,11 @@ export function MediaDetailSheet({
             )}
           </div>
 
-          <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs text-neutral-400">Status:</span>
-            <Select
-              value={libraryItem.watchStatus}
-              onValueChange={handleStatusChange}
-            >
-              <SelectTrigger size="sm" className="h-6 text-[11px] w-auto">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {(Object.keys(statusConfig) as WatchStatus[]).map((status) => (
-                  <SelectItem key={status} value={status}>
-                    {getStatusLabel(status, mediaType)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="mt-2">
+            <span className="text-xs text-neutral-400 block mb-1.5">
+              Status
+            </span>
+            {statusPicker}
           </div>
         </div>
       </div>
@@ -254,14 +325,33 @@ export function MediaDetailSheet({
     </div>
   );
 
+  const titleElement = isEditingTitle ? (
+    <input
+      ref={titleInputRef}
+      type="text"
+      value={editedTitle}
+      onChange={(e) => setEditedTitle(e.target.value)}
+      onBlur={handleSaveTitle}
+      onKeyDown={handleTitleKeyDown}
+      className="bg-transparent border-b border-blue-500 outline-none text-inherit font-inherit w-full"
+    />
+  ) : (
+    <button
+      type="button"
+      onClick={handleStartEdit}
+      className="flex items-center gap-2 text-left hover:text-blue-400 transition-colors group"
+    >
+      <span>{displayTitle}</span>
+      <Pencil className="size-3 opacity-0 group-hover:opacity-100 transition-opacity text-neutral-400" />
+    </button>
+  );
+
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle className="text-left">
-              {media.titleEnglish || media.title}
-            </DrawerTitle>
+            <DrawerTitle className="text-left">{titleElement}</DrawerTitle>
           </DrawerHeader>
           <div className="px-4 pb-6">{content}</div>
         </DrawerContent>
@@ -273,7 +363,7 @@ export function MediaDetailSheet({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{media.titleEnglish || media.title}</DialogTitle>
+          <DialogTitle>{titleElement}</DialogTitle>
         </DialogHeader>
         {content}
       </DialogContent>

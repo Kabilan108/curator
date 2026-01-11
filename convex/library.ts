@@ -163,6 +163,7 @@ export const updateLibraryItem = mutation({
     ),
     userNotes: v.optional(v.string()),
     customTags: v.optional(v.array(v.string())),
+    customTitle: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const { id, watchStatus, ...otherUpdates } = args;
