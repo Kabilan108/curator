@@ -62,8 +62,8 @@ export const importMalItem = mutation({
 
     await ctx.db.insert("userLibrary", {
       mediaItemId,
-      // Denormalized fields
-      mediaTitle: args.title,
+      // Denormalized fields (prefer English title)
+      mediaTitle: args.titleEnglish ?? args.title,
       mediaCoverImage: args.coverImage,
       mediaBannerImage: undefined,
       mediaType: args.type,

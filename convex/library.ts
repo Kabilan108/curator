@@ -121,8 +121,8 @@ export const addToLibrary = mutation({
     const now = Date.now();
     const id = await ctx.db.insert("userLibrary", {
       mediaItemId: args.mediaItemId,
-      // Denormalized fields
-      mediaTitle: media.title,
+      // Denormalized fields - prefer English title when available
+      mediaTitle: media.titleEnglish || media.title,
       mediaCoverImage: media.coverImage,
       mediaBannerImage: media.bannerImage,
       mediaType: media.type,
