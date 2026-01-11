@@ -124,7 +124,7 @@ export const LibraryCard = memo(function LibraryCard({
 
   return (
     <div
-      className="bg-neutral-900 overflow-hidden border border-neutral-800 group relative cursor-pointer transition-colors hover:border-neutral-700"
+      className="bg-neutral-900 overflow-hidden border border-neutral-800 group relative cursor-pointer transition-all duration-200 hover:border-neutral-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {

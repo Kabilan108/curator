@@ -81,7 +81,7 @@ export function Layout() {
 
       {/* Main content area */}
       <main className="pb-20 md:pb-0 md:ml-56">
-        <div className="container mx-auto px-4 py-6 max-w-7xl">
+        <div className="container mx-auto px-4 py-6 max-w-7xl animate-in fade-in duration-300">
           <Outlet />
         </div>
       </main>
