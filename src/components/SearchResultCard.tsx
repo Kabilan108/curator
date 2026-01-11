@@ -19,6 +19,22 @@ interface SearchResultCardProps {
   onAddToLibrary: (status: WatchStatus) => void;
 }
 
+const statusOptions: {
+  value: WatchStatus;
+  animeLabel: string;
+  mangaLabel: string;
+}[] = [
+  { value: "WATCHING", animeLabel: "Watching", mangaLabel: "Reading" },
+  { value: "COMPLETED", animeLabel: "Completed", mangaLabel: "Completed" },
+  {
+    value: "PLAN_TO_WATCH",
+    animeLabel: "Plan to Watch",
+    mangaLabel: "Plan to Read",
+  },
+  { value: "ON_HOLD", animeLabel: "On Hold", mangaLabel: "On Hold" },
+  { value: "DROPPED", animeLabel: "Dropped", mangaLabel: "Dropped" },
+];
+
 function StatusPicker({
   mediaType,
   onSelect,
@@ -26,24 +42,18 @@ function StatusPicker({
   mediaType: "ANIME" | "MANGA";
   onSelect: (status: WatchStatus) => void;
 }): JSX.Element {
-  const watchingLabel = mediaType === "ANIME" ? "Watching" : "Reading";
-
   return (
     <div className="absolute right-0 bottom-full mb-1 z-10 bg-neutral-800 border border-neutral-700 shadow-lg min-w-[140px]">
-      <button
-        type="button"
-        onClick={() => onSelect("WATCHING")}
-        className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
-      >
-        {watchingLabel}
-      </button>
-      <button
-        type="button"
-        onClick={() => onSelect("COMPLETED")}
-        className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
-      >
-        Completed
-      </button>
+      {statusOptions.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onSelect(option.value)}
+          className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
+        >
+          {mediaType === "ANIME" ? option.animeLabel : option.mangaLabel}
+        </button>
+      ))}
     </div>
   );
 }

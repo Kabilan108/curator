@@ -3,6 +3,8 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 import { CLOSE_RATING_RANGE, NEW_ITEM_THRESHOLD } from "./lib/constants";
 
+const RANKABLE_STATUSES = ["COMPLETED", "WATCHING", "ON_HOLD"] as const;
+
 // Helper function to find a smart pair from a list of items
 function findSmartPair(
   filteredItems: Doc<"userLibrary">[],
@@ -70,50 +72,65 @@ function findSmartPair(
 }
 
 // Get a smart pair for comparison, filtered by media type
+// Only includes rankable statuses: COMPLETED, WATCHING, ON_HOLD
 export const getSmartPair = query({
   args: {
     mediaType: v.union(v.literal("ANIME"), v.literal("MANGA")),
   },
   handler: async (ctx, args) => {
-    const filteredItems = await ctx.db
+    const allItems = await ctx.db
       .query("userLibrary")
       .withIndex("by_media_type", (q) => q.eq("mediaType", args.mediaType))
       .collect();
 
-    return findSmartPair(filteredItems);
+    const rankableItems = allItems.filter((item) =>
+      RANKABLE_STATUSES.includes(
+        item.watchStatus as (typeof RANKABLE_STATUSES)[number],
+      ),
+    );
+
+    return findSmartPair(rankableItems);
   },
 });
 
 // Combined query: get smart pair and stats in one request (saves a DB round-trip)
+// Only includes rankable statuses: COMPLETED, WATCHING, ON_HOLD
 export const getSmartPairWithStats = query({
   args: {
     mediaType: v.union(v.literal("ANIME"), v.literal("MANGA")),
   },
   handler: async (ctx, args) => {
     // Fetch items ONCE
-    const filteredItems = await ctx.db
+    const allItems = await ctx.db
       .query("userLibrary")
       .withIndex("by_media_type", (q) => q.eq("mediaType", args.mediaType))
       .collect();
 
+    // Filter to rankable statuses only
+    const rankableItems = allItems.filter((item) =>
+      RANKABLE_STATUSES.includes(
+        item.watchStatus as (typeof RANKABLE_STATUSES)[number],
+      ),
+    );
+
     // Calculate pair using shared helper
-    const pair = findSmartPair(filteredItems);
+    const pair = findSmartPair(rankableItems);
 
     // Calculate stats from the SAME data (no second fetch)
-    const newItems = filteredItems.filter(
+    const newItems = rankableItems.filter(
       (item) => item.comparisonCount < NEW_ITEM_THRESHOLD,
     );
 
     const stats = {
-      totalItems: filteredItems.length,
-      itemsNeedingReranking: filteredItems.filter((i) => i.needsReranking)
+      totalItems: rankableItems.length,
+      itemsNeedingReranking: rankableItems.filter((i) => i.needsReranking)
         .length,
       newItemsNeedingPlacement: newItems.length,
       averageComparisons:
-        filteredItems.length > 0
+        rankableItems.length > 0
           ? Math.round(
-              filteredItems.reduce((sum, i) => sum + i.comparisonCount, 0) /
-                filteredItems.length,
+              rankableItems.reduce((sum, i) => sum + i.comparisonCount, 0) /
+                rankableItems.length,
             )
           : 0,
     };
