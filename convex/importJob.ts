@@ -22,6 +22,7 @@ const MEDIA_BY_MAL_QUERY = `
         english
         native
       }
+      description(asHtml: false)
       coverImage {
         large
         extraLarge
@@ -47,6 +48,7 @@ const SEARCH_BY_TITLE_QUERY = `
         english
         native
       }
+      description(asHtml: false)
       coverImage {
         large
         extraLarge
@@ -70,6 +72,7 @@ interface AniListMedia {
     english: string | null;
     native: string | null;
   };
+  description: string | null;
   coverImage: {
     large: string;
     extraLarge: string;
@@ -242,6 +245,7 @@ export const processBatch = internalAction({
                 anilistId: media.id,
                 title: media.title.romaji,
                 titleEnglish: media.title.english ?? undefined,
+                description: media.description ?? undefined,
                 coverImage:
                   media.coverImage?.extraLarge ??
                   media.coverImage?.large ??

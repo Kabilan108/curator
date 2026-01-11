@@ -190,7 +190,9 @@ export function MediaDetailSheet({
   ) : (
     <Select value={libraryItem.watchStatus} onValueChange={handleStatusChange}>
       <SelectTrigger size="sm" className="h-6 text-[11px] w-auto">
-        <SelectValue />
+        <SelectValue>
+          {getStatusLabel(libraryItem.watchStatus, mediaType)}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {(Object.keys(statusConfig) as WatchStatus[]).map((status) => (
@@ -208,7 +210,7 @@ export function MediaDetailSheet({
         <img
           src={media.coverImage}
           alt={media.title}
-          className="w-24 h-36 object-cover shrink-0"
+          className="w-28 h-[168px] md:w-32 md:h-48 object-cover shrink-0"
         />
         <div className="flex flex-col gap-2 min-w-0">
           {media.titleEnglish && media.title !== media.titleEnglish && (
@@ -243,7 +245,7 @@ export function MediaDetailSheet({
       <div className="grid grid-cols-2 gap-3 text-xs">
         <div>
           <span className="text-neutral-500">Elo Rating</span>
-          <p className="font-mono text-blue-400">{libraryItem.eloRating}</p>
+          <p className="font-mono text-primary">{libraryItem.eloRating}</p>
         </div>
         <div>
           <span className="text-neutral-500">Comparisons</span>
@@ -333,13 +335,13 @@ export function MediaDetailSheet({
       onChange={(e) => setEditedTitle(e.target.value)}
       onBlur={handleSaveTitle}
       onKeyDown={handleTitleKeyDown}
-      className="bg-transparent border-b border-blue-500 outline-none text-inherit font-inherit w-full"
+      className="bg-transparent border-b border-primary outline-none text-inherit font-inherit w-full"
     />
   ) : (
     <button
       type="button"
       onClick={handleStartEdit}
-      className="flex items-center gap-2 text-left hover:text-blue-400 transition-colors group"
+      className="flex items-center gap-2 text-left hover:text-primary transition-colors group"
     >
       <span>{displayTitle}</span>
       <Pencil className="size-3 opacity-0 group-hover:opacity-100 transition-opacity text-neutral-400" />
@@ -361,7 +363,7 @@ export function MediaDetailSheet({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{titleElement}</DialogTitle>
         </DialogHeader>

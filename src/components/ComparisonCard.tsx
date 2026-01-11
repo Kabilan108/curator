@@ -30,7 +30,7 @@ export function ComparisonCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-blue-500 transition-all duration-200 disabled:opacity-50 text-left focus:outline-none focus:border-blue-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/10 w-full"
+      className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-primary transition-all duration-200 disabled:opacity-50 text-left focus:outline-none focus:border-primary hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 w-full"
     >
       {/* Unified overlay design for mobile and desktop */}
       <div className="relative">

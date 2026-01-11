@@ -178,7 +178,7 @@ export function ComparePage() {
     const diff = newRating - itemRating;
     return (
       <div className="flex items-center gap-2">
-        <span className="text-blue-400">{newRating}</span>
+        <span className="text-primary">{newRating}</span>
         <span
           className={
             diff >= 0 ? "text-green-400 text-sm" : "text-red-400 text-sm"
@@ -223,7 +223,7 @@ export function ComparePage() {
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size progress indicator
               <div
                 key={dotId}
-                className={`w-2 h-2 ${i < sessionCount ? "bg-blue-500" : "bg-neutral-700"}`}
+                className={`w-2 h-2 ${i < sessionCount ? "bg-primary" : "bg-neutral-700"}`}
               />
             );
           })}

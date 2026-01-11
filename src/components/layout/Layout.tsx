@@ -26,7 +26,7 @@ function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors flex-1",
                 isActive
-                  ? "text-blue-400"
+                  ? "text-primary"
                   : "text-neutral-400 hover:text-neutral-50",
               )}
             >
@@ -60,7 +60,7 @@ function Sidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors",
                 isActive
-                  ? "bg-blue-600/10 text-blue-400"
+                  ? "bg-primary/10 text-primary"
                   : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50",
               )}
             >

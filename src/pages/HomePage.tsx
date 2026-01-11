@@ -175,7 +175,7 @@ export function HomePage() {
         >
           Anime ({filteredByType.anime.length})
           {activeTab === "ANIME" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
           )}
         </button>
         <button
@@ -189,78 +189,97 @@ export function HomePage() {
         >
           Manga ({filteredByType.manga.length})
           {activeTab === "MANGA" && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
           )}
         </button>
       </div>
 
-      {/* Controls Row */}
-      <div className="flex flex-wrap gap-3 items-center">
-        {/* Sort Dropdown */}
-        <Select
-          value={sortBy}
-          onValueChange={(v) => setSortBy(v as SortOption)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="elo">Elo Rank</SelectItem>
-            <SelectItem value="recent">Recently Added</SelectItem>
-            <SelectItem value="alphabetical">Alphabetical</SelectItem>
-            <SelectItem value="comparisons">Comparison Count</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Controls */}
+      <div className="space-y-3 md:space-y-0">
+        {/* Dropdowns + Active Filters (inline on desktop, stacked on mobile) */}
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Sort Dropdown */}
+          <Select
+            value={sortBy}
+            onValueChange={(v) => setSortBy(v as SortOption)}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="elo">Elo Rank</SelectItem>
+              <SelectItem value="recent">Recently Added</SelectItem>
+              <SelectItem value="alphabetical">Alphabetical</SelectItem>
+              <SelectItem value="comparisons">Comparison Count</SelectItem>
+            </SelectContent>
+          </Select>
 
-        {/* Genre Filter Dropdown */}
-        {availableGenres.length > 0 && (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="outline" className="gap-2">
-                  <Filter className="size-4" />
-                  Genres
-                  {selectedGenres.length > 0 && (
-                    <span className="bg-blue-600 text-white px-1.5 py-0.5 text-xs ml-1">
-                      {selectedGenres.length}
-                    </span>
-                  )}
-                  <ChevronDown className="size-4 ml-1" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent className="max-h-[300px] overflow-y-auto w-[200px]">
-              {selectedGenres.length > 0 && (
+          {/* Genre Filter Dropdown */}
+          {availableGenres.length > 0 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" className="gap-2">
+                    <Filter className="size-4" />
+                    Genres
+                    {selectedGenres.length > 0 && (
+                      <span className="bg-primary text-white px-1.5 py-0.5 text-xs ml-1">
+                        {selectedGenres.length}
+                      </span>
+                    )}
+                    <ChevronDown className="size-4 ml-1" />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent className="max-h-[300px] overflow-y-auto w-[200px]">
+                {selectedGenres.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearGenres}
+                    className="w-full px-2 py-2 text-xs text-left text-primary hover:bg-neutral-800"
+                  >
+                    Clear all filters
+                  </button>
+                )}
+                {availableGenres.map((genre) => (
+                  <DropdownMenuCheckboxItem
+                    key={genre}
+                    checked={selectedGenres.includes(genre)}
+                    onCheckedChange={() => toggleGenre(genre)}
+                  >
+                    {genre}
+                  </DropdownMenuCheckboxItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          {/* Active Filters - inline on desktop */}
+          {selectedGenres.length > 0 && (
+            <div className="hidden md:flex flex-wrap gap-1">
+              {selectedGenres.map((genre) => (
                 <button
                   type="button"
-                  onClick={clearGenres}
-                  className="w-full px-2 py-2 text-xs text-left text-blue-400 hover:bg-neutral-800"
-                >
-                  Clear all filters
-                </button>
-              )}
-              {availableGenres.map((genre) => (
-                <DropdownMenuCheckboxItem
                   key={genre}
-                  checked={selectedGenres.includes(genre)}
-                  onCheckedChange={() => toggleGenre(genre)}
+                  onClick={() => toggleGenre(genre)}
+                  className="text-xs bg-primary/20 text-primary px-2 py-1 hover:bg-primary/30 transition-colors"
                 >
-                  {genre}
-                </DropdownMenuCheckboxItem>
+                  {genre} &times;
+                </button>
               ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+            </div>
+          )}
+        </div>
 
-        {/* Active Filters Display */}
+        {/* Active Filters - own row on mobile only */}
         {selectedGenres.length > 0 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="flex md:hidden flex-wrap gap-1">
             {selectedGenres.map((genre) => (
               <button
                 type="button"
                 key={genre}
                 onClick={() => toggleGenre(genre)}
-                className="text-xs bg-blue-600/20 text-blue-400 px-2 py-1 hover:bg-blue-600/30 transition-colors"
+                className="text-xs bg-primary/20 text-primary px-2 py-1 hover:bg-primary/30 transition-colors"
               >
                 {genre} &times;
               </button>
@@ -288,7 +307,7 @@ export function HomePage() {
           <button
             type="button"
             onClick={clearGenres}
-            className="text-sm text-blue-400 hover:text-blue-300"
+            className="text-sm text-primary hover:text-primary/80"
           >
             Clear filters
           </button>

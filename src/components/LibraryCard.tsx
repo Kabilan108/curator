@@ -153,7 +153,7 @@ export const LibraryCard = memo(function LibraryCard({
         {/* Score Badge - Top Right */}
         <div className="absolute top-0 right-0 bg-black/80 px-2 py-1 text-sm font-mono">
           {score !== null ? (
-            <span className="text-blue-400">{score}</span>
+            <span className="text-primary">{score}</span>
           ) : (
             <span className="text-neutral-500 text-xs">--</span>
           )}
@@ -197,42 +197,49 @@ export const LibraryCard = memo(function LibraryCard({
       </div>
 
       {/* Card Content */}
-      <div className="p-3 space-y-2">
-        {/* Title */}
+      <div className="p-3 flex flex-col h-[140px]">
+        {/* Title - fixed height for 2 lines */}
         <h3
-          className="font-medium text-sm line-clamp-2 leading-tight"
+          className="font-medium text-sm line-clamp-2 leading-tight max-h-[2.2rem] overflow-hidden"
           title={item.mediaTitle}
         >
           {item.mediaTitle}
         </h3>
 
-        {/* Status Badge - Clickable to cycle status */}
-        <button type="button" onClick={handleStatusCycle} className="text-left">
-          <Badge
-            variant="outline"
-            className={`text-[10px] px-1.5 py-0 h-4 cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.className}`}
+        {/* Bottom-pinned content */}
+        <div className="mt-auto space-y-1.5">
+          {/* Status Badge - Clickable to cycle status */}
+          <button
+            type="button"
+            onClick={handleStatusCycle}
+            className="text-left"
           >
-            {statusLabel}
-          </Badge>
-        </button>
+            <Badge
+              variant="outline"
+              className={`text-[10px] px-1.5 py-0 h-4 cursor-pointer hover:opacity-80 transition-opacity ${statusInfo.className}`}
+            >
+              {statusLabel}
+            </Badge>
+          </button>
 
-        {/* Genre Tags */}
-        {displayGenres.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {displayGenres.map((genre) => (
-              <span
-                key={genre}
-                className="text-[10px] text-neutral-400 bg-neutral-800 px-1.5 py-0.5"
-              >
-                {genre}
-              </span>
-            ))}
+          {/* Genre Tags */}
+          {displayGenres.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              {displayGenres.map((genre) => (
+                <span
+                  key={genre}
+                  className="text-[10px] text-neutral-400 bg-neutral-800 px-1.5 py-0.5"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Comparison Count */}
+          <div className="text-[10px] text-neutral-500">
+            {item.comparisonCount} comparisons
           </div>
-        )}
-
-        {/* Comparison Count */}
-        <div className="text-[10px] text-neutral-500 pt-1">
-          {item.comparisonCount} comparisons
         </div>
       </div>
     </div>
