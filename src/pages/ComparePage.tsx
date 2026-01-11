@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { RefreshCw, Scale, SkipForward } from "lucide-react";
 import { useEffect, useState } from "react";
 import { ComparisonCard } from "@/components/ComparisonCard";
+import { ComparisonPairSkeleton } from "@/components/ComparisonCardSkeleton";
 import { StatsPanel } from "@/components/StatsPanel";
 import { Button } from "@/components/ui/button";
 import { api } from "../../convex/_generated/api";
@@ -115,8 +116,12 @@ export function ComparePage() {
 
   if (result === undefined) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-neutral-400">Loading...</div>
+      <div className="space-y-6 max-w-4xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold">Compare</h1>
+          <p className="text-neutral-400 mt-2">Which one do you prefer?</p>
+        </div>
+        <ComparisonPairSkeleton />
       </div>
     );
   }

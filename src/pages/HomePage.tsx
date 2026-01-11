@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { ChevronDown, Filter } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LibraryCard } from "@/components/LibraryCard";
+import { LibraryGridSkeleton } from "@/components/LibraryCardSkeleton";
 import { MediaDetailSheet } from "@/components/MediaDetailSheet";
 import { Button } from "@/components/ui/button";
 import {
@@ -270,7 +271,7 @@ export function HomePage() {
 
       {/* Content */}
       {library === undefined ? (
-        <div className="text-neutral-400">Loading...</div>
+        <LibraryGridSkeleton count={10} />
       ) : currentTabItems.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-neutral-400 mb-4">
