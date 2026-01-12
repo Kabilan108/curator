@@ -11,13 +11,15 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, subtext }: StatCardProps) {
   return (
-    <div className="bg-neutral-800/50 p-4 space-y-1">
-      <div className="flex items-center gap-2 text-neutral-400 text-sm">
+    <div className="bg-surface-raised/50 p-4 space-y-1">
+      <div className="flex items-center gap-2 text-foreground-muted text-sm">
         {icon}
         {label}
       </div>
       <div className="text-2xl font-bold">{value}</div>
-      {subtext && <div className="text-xs text-neutral-500">{subtext}</div>}
+      {subtext && (
+        <div className="text-xs text-foreground-subtle">{subtext}</div>
+      )}
     </div>
   );
 }
@@ -31,7 +33,7 @@ function ActivityBar({ days }: ActivityBarProps) {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-2 text-neutral-400 text-sm">
+      <div className="flex items-center gap-2 text-foreground-muted text-sm">
         <Calendar className="size-4" />
         Last 7 Days
       </div>
@@ -48,7 +50,9 @@ function ActivityBar({ days }: ActivityBarProps) {
                 minHeight: day.count > 0 ? "4px" : "2px",
               }}
             />
-            <span className="text-[10px] text-neutral-500">{day.day}</span>
+            <span className="text-[10px] text-foreground-subtle">
+              {day.day}
+            </span>
           </div>
         ))}
       </div>
@@ -61,14 +65,16 @@ export function StatsPanel() {
 
   if (!stats) {
     return (
-      <div className="bg-neutral-900 border border-neutral-800 p-6">
-        <div className="text-neutral-400 text-center">Loading stats...</div>
+      <div className="bg-surface border border-border p-6">
+        <div className="text-foreground-muted text-center">
+          Loading stats...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 p-6 space-y-6">
+    <div className="bg-surface border border-border p-6 space-y-6">
       <h3 className="font-semibold flex items-center gap-2">
         <BarChart3 className="size-5" />
         Your Stats
@@ -107,7 +113,7 @@ export function StatsPanel() {
       )}
 
       {/* Additional Info */}
-      <div className="flex gap-4 text-xs text-neutral-500">
+      <div className="flex gap-4 text-xs text-foreground-subtle">
         <span>Avg {stats.averageComparisonsPerItem} comparisons/item</span>
         {stats.tieCount > 0 && <span>{stats.tieCount} ties</span>}
       </div>
@@ -122,7 +128,7 @@ export function StatsCompact() {
   if (!stats) return null;
 
   return (
-    <div className="flex items-center gap-4 text-sm text-neutral-400">
+    <div className="flex items-center gap-4 text-sm text-foreground-muted">
       <span className="flex items-center gap-1">
         <Target className="size-4" />
         {stats.totalComparisons} comparisons

@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function LibraryCardSkeleton() {
   return (
-    <div className="bg-neutral-900 overflow-hidden border border-neutral-800">
+    <div className="bg-surface overflow-hidden border border-border">
       {/* Cover Image Skeleton */}
       <Skeleton className="aspect-[2/3] w-full rounded-none" />
 

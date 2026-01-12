@@ -89,7 +89,7 @@ export function ComparePage() {
         <div className="text-center py-8 space-y-4">
           <div className="text-6xl mb-4">🎉</div>
           <h2 className="text-2xl font-bold">Session Complete!</h2>
-          <p className="text-neutral-400">
+          <p className="text-foreground-muted">
             You've made {SESSION_LIMIT} comparisons. Take a break or continue
             refining.
           </p>
@@ -115,7 +115,7 @@ export function ComparePage() {
       <div className="space-y-6 max-w-4xl mx-auto">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Compare</h1>
-          <p className="text-neutral-400 mt-2">Which one do you prefer?</p>
+          <p className="text-foreground-muted mt-2">Which one do you prefer?</p>
         </div>
         <ComparisonPairSkeleton />
       </div>
@@ -127,7 +127,7 @@ export function ComparePage() {
       <div className="space-y-6 max-w-2xl mx-auto">
         <div className="text-center">
           <h1 className="text-3xl font-bold">Compare</h1>
-          <p className="text-neutral-400 mt-2">
+          <p className="text-foreground-muted mt-2">
             Refine your rankings through comparisons
           </p>
         </div>
@@ -145,10 +145,10 @@ export function ComparePage() {
           ))}
         </div>
 
-        <div className="text-center py-12 space-y-4 bg-neutral-900 border border-neutral-800">
-          <Scale className="size-12 mx-auto text-neutral-600" />
+        <div className="text-center py-12 space-y-4 bg-surface border border-border">
+          <Scale className="size-12 mx-auto text-foreground-subtle" />
           <h2 className="text-xl font-bold">No comparisons available</h2>
-          <p className="text-neutral-400 max-w-md mx-auto">
+          <p className="text-foreground-muted max-w-md mx-auto">
             {stats && stats.totalItems < 2
               ? `Add at least 2 ${mediaType.toLowerCase()} to your library to start comparing.`
               : `All ${mediaType.toLowerCase()} are well-ranked! Check back later or add more items.`}
@@ -164,7 +164,7 @@ export function ComparePage() {
 
   const getRatingDisplay = (itemId: string, itemRating: number) => {
     if (!showResults || !lastResult) {
-      return <span className="text-neutral-500">???</span>;
+      return <span className="text-foreground-subtle">???</span>;
     }
     const isWinner = lastResult.winnerId === itemId;
     const newRating = isWinner ? lastResult.winnerNew : lastResult.loserNew;
@@ -187,7 +187,7 @@ export function ComparePage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="text-center">
         <h1 className="text-3xl font-bold">Compare</h1>
-        <p className="text-neutral-400 mt-2">Which one do you prefer?</p>
+        <p className="text-foreground-muted mt-2">Which one do you prefer?</p>
       </div>
 
       <div className="flex gap-2 justify-center">
@@ -203,7 +203,7 @@ export function ComparePage() {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 text-sm text-neutral-400">
+      <div className="flex items-center justify-center gap-2 text-sm text-foreground-muted">
         <span>
           Comparison {sessionCount + 1} of {SESSION_LIMIT}
         </span>
@@ -214,7 +214,7 @@ export function ComparePage() {
               // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size progress indicator
               <div
                 key={dotId}
-                className={`w-2 h-2 ${i < sessionCount ? "bg-primary" : "bg-neutral-700"}`}
+                className={`w-2 h-2 ${i < sessionCount ? "bg-primary" : "bg-border"}`}
               />
             );
           })}
@@ -250,14 +250,14 @@ export function ComparePage() {
           variant="ghost"
           onClick={handleSkip}
           disabled={isComparing}
-          className="gap-2 text-neutral-400"
+          className="gap-2 text-foreground-muted"
         >
           <SkipForward className="size-4" />
           Skip
         </Button>
       </div>
 
-      <div className="text-center text-sm text-neutral-500">
+      <div className="text-center text-sm text-foreground-subtle">
         Tap a card to choose, or use the buttons below
       </div>
     </div>

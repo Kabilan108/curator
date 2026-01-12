@@ -30,10 +30,10 @@ export function ComparisonCard({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="bg-neutral-900 border-2 border-neutral-800 overflow-hidden hover:border-primary transition-all duration-200 disabled:opacity-50 text-left focus:outline-none focus:border-primary hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 w-full"
+      className="bg-surface border-2 border-border overflow-hidden hover:border-primary transition-all duration-200 disabled:opacity-50 text-left focus:outline-none focus:border-primary hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 w-full"
     >
       <div className="relative">
-        <div className="aspect-[4/5] md:aspect-[3/4] bg-neutral-800 relative overflow-hidden">
+        <div className="aspect-[4/5] md:aspect-[3/4] bg-surface-raised relative overflow-hidden">
           <img
             src={item.mediaCoverImage}
             alt={item.mediaTitle}
@@ -57,7 +57,7 @@ export function ComparisonCard({
               {item.mediaGenres.slice(0, 2).map((genre) => (
                 <span
                   key={genre}
-                  className="text-[10px] md:text-xs text-neutral-300 bg-white/10 px-1.5 py-0.5"
+                  className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5"
                 >
                   {genre}
                 </span>
@@ -66,14 +66,14 @@ export function ComparisonCard({
 
             <div className="flex items-center justify-between text-sm md:text-base pt-1">
               <div className="flex items-center gap-1 md:gap-2">
-                <span className="text-neutral-400 text-xs md:text-sm">
+                <span className="text-foreground-muted text-xs md:text-sm">
                   Rating:
                 </span>
                 <span className="font-mono font-bold text-base md:text-xl">
                   {ratingDisplay}
                 </span>
               </div>
-              <div className="text-neutral-400 text-xs md:text-sm">
+              <div className="text-foreground-muted text-xs md:text-sm">
                 {item.comparisonCount} comps
               </div>
             </div>

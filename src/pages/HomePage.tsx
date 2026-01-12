@@ -144,19 +144,19 @@ export function HomePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">My Library</h1>
-        <p className="text-neutral-400 mt-2">
+        <p className="text-foreground-muted mt-2">
           Your anime and manga collection, ranked by preference
         </p>
       </div>
 
-      <div className="flex gap-1 border-b border-neutral-800">
+      <div className="flex gap-1 border-b border-border">
         <button
           type="button"
           onClick={() => setActiveTab("ANIME")}
           className={`px-4 py-2 text-sm font-medium transition-colors relative ${
             activeTab === "ANIME"
-              ? "text-white"
-              : "text-neutral-400 hover:text-neutral-200"
+              ? "text-foreground"
+              : "text-foreground-muted hover:text-foreground"
           }`}
         >
           Anime ({filteredByType.anime.length})
@@ -169,8 +169,8 @@ export function HomePage() {
           onClick={() => setActiveTab("MANGA")}
           className={`px-4 py-2 text-sm font-medium transition-colors relative ${
             activeTab === "MANGA"
-              ? "text-white"
-              : "text-neutral-400 hover:text-neutral-200"
+              ? "text-foreground"
+              : "text-foreground-muted hover:text-foreground"
           }`}
         >
           Manga ({filteredByType.manga.length})
@@ -205,7 +205,7 @@ export function HomePage() {
                     <Filter className="size-4" />
                     Genres
                     {selectedGenres.length > 0 && (
-                      <span className="bg-primary text-white px-1.5 py-0.5 text-xs ml-1">
+                      <span className="bg-primary text-primary-foreground px-1.5 py-0.5 text-xs ml-1">
                         {selectedGenres.length}
                       </span>
                     )}
@@ -218,7 +218,7 @@ export function HomePage() {
                   <button
                     type="button"
                     onClick={clearGenres}
-                    className="w-full px-2 py-2 text-xs text-left text-primary hover:bg-neutral-800"
+                    className="w-full px-2 py-2 text-xs text-left text-primary hover:bg-surface-raised"
                   >
                     Clear all filters
                   </button>
@@ -272,17 +272,19 @@ export function HomePage() {
         <LibraryGridSkeleton count={10} />
       ) : currentTabItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-neutral-400 mb-4">
+          <p className="text-foreground-muted mb-4">
             No {activeTab.toLowerCase()} in your library yet
           </p>
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-foreground-subtle">
             Add some {activeTab.toLowerCase()} from the Search tab to get
             started!
           </p>
         </div>
       ) : sortedItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-neutral-400 mb-4">No items match your filters</p>
+          <p className="text-foreground-muted mb-4">
+            No items match your filters
+          </p>
           <button
             type="button"
             onClick={clearGenres}
@@ -294,7 +296,7 @@ export function HomePage() {
       ) : (
         <>
           {currentTabItems.length < 5 && (
-            <div className="text-xs text-neutral-500 bg-neutral-900 p-3 border border-neutral-800">
+            <div className="text-xs text-foreground-subtle bg-surface p-3 border border-border">
               Add {5 - currentTabItems.length} more {activeTab.toLowerCase()} to
               see ranking scores. Scores require at least 5 items.
             </div>

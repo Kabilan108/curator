@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function SearchResultSkeleton() {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 overflow-hidden flex gap-4 p-4">
+    <div className="bg-surface border border-border overflow-hidden flex gap-4 p-4">
       {/* Cover Image */}
       <Skeleton className="w-24 h-36 flex-shrink-0 rounded-none" />
 

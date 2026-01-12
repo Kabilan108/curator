@@ -37,13 +37,13 @@ function StatusPicker({
   onSelect: (status: WatchStatus) => void;
 }): JSX.Element {
   return (
-    <div className="absolute right-0 bottom-full mb-1 z-10 bg-neutral-800 border border-neutral-700 shadow-lg min-w-[140px]">
+    <div className="absolute right-0 bottom-full mb-1 z-10 bg-surface-raised border border-border shadow-lg min-w-[140px]">
       {statusOptions.map((option) => (
         <button
           key={option.value}
           type="button"
           onClick={() => onSelect(option.value)}
-          className="w-full px-3 py-2 text-left text-sm hover:bg-neutral-700 transition-colors"
+          className="w-full px-3 py-2 text-left text-sm hover:bg-surface-overlay transition-colors"
         >
           {mediaType === "ANIME" ? option.animeLabel : option.mangaLabel}
         </button>
@@ -60,8 +60,8 @@ export function SearchResultCard({
   onAddToLibrary,
 }: SearchResultCardProps): JSX.Element {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 overflow-hidden flex gap-4 p-4">
-      <div className="w-24 h-36 bg-neutral-800 overflow-hidden flex-shrink-0">
+    <div className="bg-surface border border-border overflow-hidden flex gap-4 p-4">
+      <div className="w-24 h-36 bg-surface-raised overflow-hidden flex-shrink-0">
         <img
           src={media.coverImage.large}
           alt={media.title.romaji}
@@ -79,7 +79,7 @@ export function SearchResultCard({
           </h3>
           {media.title.english && (
             <p
-              className="text-sm text-neutral-400 line-clamp-1"
+              className="text-sm text-foreground-muted line-clamp-1"
               title={media.title.romaji}
             >
               {media.title.romaji}
@@ -108,7 +108,7 @@ export function SearchResultCard({
             {media.genres.slice(0, 3).map((genre) => (
               <span
                 key={genre}
-                className="text-xs text-neutral-500 bg-neutral-800 px-2 py-0.5"
+                className="text-xs text-foreground-subtle bg-surface-raised px-2 py-0.5"
               >
                 {genre}
               </span>
@@ -119,10 +119,12 @@ export function SearchResultCard({
         <div className="flex items-center justify-between pt-2">
           <div className="text-sm space-x-3">
             {media.averageScore && (
-              <span className="text-neutral-400">{media.averageScore}%</span>
+              <span className="text-foreground-muted">
+                {media.averageScore}%
+              </span>
             )}
             {(media.episodes || media.chapters) && (
-              <span className="text-neutral-400">
+              <span className="text-foreground-muted">
                 {media.type === "ANIME"
                   ? `${media.episodes} eps`
                   : `${media.chapters} ch`}

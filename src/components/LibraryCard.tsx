@@ -75,7 +75,7 @@ export const LibraryCard = memo(function LibraryCard({
   return (
     // biome-ignore lint/a11y/useSemanticElements: card with nested interactive elements requires div wrapper
     <div
-      className="bg-neutral-900 overflow-hidden border border-neutral-800 group relative cursor-pointer transition-all duration-200 hover:border-neutral-700 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
+      className="bg-surface overflow-hidden border border-border group relative cursor-pointer transition-all duration-200 hover:border-primary/50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20"
       onClick={onClick}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
@@ -86,7 +86,7 @@ export const LibraryCard = memo(function LibraryCard({
       tabIndex={0}
       role="button"
     >
-      <div className="aspect-[2/3] bg-neutral-800 relative">
+      <div className="aspect-[2/3] bg-surface-raised relative">
         <img
           src={item.mediaCoverImage}
           alt={item.mediaTitle}
@@ -102,7 +102,7 @@ export const LibraryCard = memo(function LibraryCard({
           {score !== null ? (
             <span className="text-primary">{score}</span>
           ) : (
-            <span className="text-neutral-500 text-xs">--</span>
+            <span className="text-foreground-subtle text-xs">--</span>
           )}
         </div>
 
@@ -171,7 +171,7 @@ export const LibraryCard = memo(function LibraryCard({
               {displayGenres.map((genre) => (
                 <span
                   key={genre}
-                  className="text-[10px] text-neutral-400 bg-neutral-800 px-1.5 py-0.5"
+                  className="text-[10px] text-foreground-muted bg-surface-raised px-1.5 py-0.5"
                 >
                   {genre}
                 </span>
@@ -179,7 +179,7 @@ export const LibraryCard = memo(function LibraryCard({
             </div>
           )}
 
-          <div className="text-[10px] text-neutral-500">
+          <div className="text-[10px] text-foreground-subtle">
             {item.comparisonCount} comparisons
           </div>
         </div>

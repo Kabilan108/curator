@@ -134,7 +134,7 @@ export function MediaDetailSheet({
             className={`text-[10px] px-2 py-1 border transition-colors ${
               isActive
                 ? config.className
-                : "border-neutral-700 text-neutral-400 hover:border-neutral-600"
+                : "border-border text-foreground-muted hover:border-primary/50"
             }`}
           >
             {getStatusLabel(status, mediaType)}
@@ -169,7 +169,7 @@ export function MediaDetailSheet({
         />
         <div className="flex flex-col gap-2 min-w-0">
           {media.titleEnglish && media.title !== media.titleEnglish && (
-            <p className="text-xs text-neutral-400">{media.title}</p>
+            <p className="text-xs text-foreground-muted">{media.title}</p>
           )}
 
           <div className="flex flex-wrap gap-1.5">
@@ -189,7 +189,7 @@ export function MediaDetailSheet({
           </div>
 
           <div className="mt-2">
-            <span className="text-xs text-neutral-400 block mb-1.5">
+            <span className="text-xs text-foreground-muted block mb-1.5">
               Status
             </span>
             {statusPicker}
@@ -199,34 +199,34 @@ export function MediaDetailSheet({
 
       <div className="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <span className="text-neutral-500">Elo Rating</span>
+          <span className="text-foreground-subtle">Elo Rating</span>
           <p className="font-mono text-primary">{libraryItem.eloRating}</p>
         </div>
         <div>
-          <span className="text-neutral-500">Comparisons</span>
+          <span className="text-foreground-subtle">Comparisons</span>
           <p className="font-mono">{libraryItem.comparisonCount}</p>
         </div>
         {mediaType === "ANIME" && media.episodes && (
           <div>
-            <span className="text-neutral-500">Episodes</span>
+            <span className="text-foreground-subtle">Episodes</span>
             <p>{media.episodes}</p>
           </div>
         )}
         {mediaType === "MANGA" && media.chapters && (
           <div>
-            <span className="text-neutral-500">Chapters</span>
+            <span className="text-foreground-subtle">Chapters</span>
             <p>{media.chapters}</p>
           </div>
         )}
         {media.averageScore && (
           <div>
-            <span className="text-neutral-500">AniList Score</span>
+            <span className="text-foreground-subtle">AniList Score</span>
             <p>{media.averageScore}%</p>
           </div>
         )}
         {media.startDate?.year && (
           <div>
-            <span className="text-neutral-500">Started</span>
+            <span className="text-foreground-subtle">Started</span>
             <p>{formatDate(media.startDate)}</p>
           </div>
         )}
@@ -234,12 +234,14 @@ export function MediaDetailSheet({
 
       {media.genres.length > 0 && (
         <div>
-          <span className="text-xs text-neutral-500 block mb-1.5">Genres</span>
+          <span className="text-xs text-foreground-subtle block mb-1.5">
+            Genres
+          </span>
           <div className="flex flex-wrap gap-1">
             {media.genres.map((genre) => (
               <span
                 key={genre}
-                className="text-[10px] bg-neutral-800 px-1.5 py-0.5 text-neutral-300"
+                className="text-[10px] bg-surface-raised px-1.5 py-0.5 text-foreground-muted"
               >
                 {genre}
               </span>
@@ -250,18 +252,20 @@ export function MediaDetailSheet({
 
       {media.tags.length > 0 && (
         <div>
-          <span className="text-xs text-neutral-500 block mb-1.5">Tags</span>
+          <span className="text-xs text-foreground-subtle block mb-1.5">
+            Tags
+          </span>
           <div className="flex flex-wrap gap-1">
             {media.tags.slice(0, 10).map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] bg-neutral-800/50 px-1.5 py-0.5 text-neutral-400"
+                className="text-[10px] bg-surface-raised/50 px-1.5 py-0.5 text-foreground-muted"
               >
                 {tag}
               </span>
             ))}
             {media.tags.length > 10 && (
-              <span className="text-[10px] text-neutral-500">
+              <span className="text-[10px] text-foreground-subtle">
                 +{media.tags.length - 10} more
               </span>
             )}
@@ -271,10 +275,10 @@ export function MediaDetailSheet({
 
       {media.description && (
         <div>
-          <span className="text-xs text-neutral-500 block mb-1.5">
+          <span className="text-xs text-foreground-subtle block mb-1.5">
             Synopsis
           </span>
-          <p className="text-xs text-neutral-300 leading-relaxed">
+          <p className="text-xs text-foreground-muted leading-relaxed">
             {stripHtml(media.description)}
           </p>
         </div>
@@ -299,7 +303,7 @@ export function MediaDetailSheet({
       className="flex items-center gap-2 text-left hover:text-primary transition-colors group"
     >
       <span>{displayTitle}</span>
-      <Pencil className="size-3 opacity-0 group-hover:opacity-100 transition-opacity text-neutral-400" />
+      <Pencil className="size-3 opacity-0 group-hover:opacity-100 transition-opacity text-foreground-muted" />
     </button>
   );
 

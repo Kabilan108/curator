@@ -130,7 +130,7 @@ export function SearchPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Search</h1>
-        <p className="text-neutral-400 mt-2">
+        <p className="text-foreground-muted mt-2">
           Find anime and manga to add to your library
         </p>
       </div>
@@ -139,14 +139,14 @@ export function SearchPage() {
       <div className="space-y-4">
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-muted" />
             <Input
               type="text"
               placeholder="Search for anime or manga..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              className="pl-10 bg-neutral-900 border-neutral-800"
+              className="pl-10 bg-surface border-border"
             />
           </div>
           <Button onClick={() => handleSearch()} disabled={loading}>
@@ -205,9 +205,11 @@ export function SearchPage() {
           )}
         </div>
       ) : loading ? (
-        <div className="text-center text-neutral-400 py-12">Searching...</div>
+        <div className="text-center text-foreground-muted py-12">
+          Searching...
+        </div>
       ) : (
-        <div className="text-center text-neutral-500 py-12">
+        <div className="text-center text-foreground-subtle py-12">
           Search for anime or manga to get started
         </div>
       )}

@@ -26,7 +26,7 @@ function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-neutral-800 safe-area-inset-bottom md:hidden z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border safe-area-inset-bottom md:hidden z-50">
       <div className="flex items-center justify-around h-16 max-w-7xl mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -40,7 +40,7 @@ function BottomNav() {
                 "flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors flex-1",
                 isActive
                   ? "text-primary"
-                  : "text-neutral-400 hover:text-neutral-50",
+                  : "text-foreground-muted hover:text-foreground",
               )}
             >
               <Icon className="w-6 h-6" />
@@ -76,7 +76,7 @@ function NavItem({
         isCollapsed ? "w-10 h-10 justify-center" : "gap-3 px-3 py-2.5",
         isActive
           ? "bg-primary/10 text-primary"
-          : "text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50",
+          : "text-foreground-muted hover:bg-surface-raised hover:text-foreground",
       )}
     >
       <Icon className="w-5 h-5 shrink-0" />
@@ -105,7 +105,7 @@ function Sidebar() {
       type="button"
       onClick={toggle}
       className={cn(
-        "flex items-center rounded-md transition-colors text-neutral-400 hover:bg-neutral-800 hover:text-neutral-50",
+        "flex items-center rounded-md transition-colors text-foreground-muted hover:bg-surface-raised hover:text-foreground",
         isCollapsed ? "w-10 h-10 justify-center" : "gap-3 px-3 py-2.5 w-full",
       )}
     >
@@ -123,20 +123,20 @@ function Sidebar() {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col bg-neutral-900 border-r border-neutral-800 h-screen fixed left-0 top-0 z-50 transition-all duration-200",
+        "hidden md:flex flex-col bg-surface border-r border-border h-screen fixed left-0 top-0 z-50 transition-all duration-200",
         isCollapsed ? "w-16" : "w-56",
       )}
     >
       <div
         className={cn(
-          "h-14 border-b border-neutral-800 flex items-center",
+          "h-14 border-b border-border flex items-center",
           isCollapsed ? "justify-center" : "px-4",
         )}
       >
         {isCollapsed ? (
-          <span className="text-lg font-bold text-neutral-50">C</span>
+          <span className="text-lg font-bold text-foreground">C</span>
         ) : (
-          <h1 className="text-lg font-bold text-neutral-50">Curator</h1>
+          <h1 className="text-lg font-bold text-foreground">Curator</h1>
         )}
       </div>
 
@@ -160,7 +160,7 @@ function Sidebar() {
 
       <div
         className={cn(
-          "py-3 border-t border-neutral-800",
+          "py-3 border-t border-border",
           isCollapsed ? "px-3 flex justify-center" : "px-3",
         )}
       >
@@ -181,7 +181,7 @@ export function Layout() {
   const { isCollapsed } = useSidebar();
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Sidebar />
 
       <main
