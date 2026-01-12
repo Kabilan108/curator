@@ -9,14 +9,10 @@
   <body>
     <script>
       (function() {
-        var theme = localStorage.getItem('curator-theme');
-        if (theme !== 'light') {
-          document.documentElement.classList.add('dark');
-        }
-        var accent = localStorage.getItem('curator-accent');
-        if (accent) {
-          document.documentElement.style.setProperty('--primary', accent);
-        }
+        var theme = localStorage.getItem('curator-theme') || 'gruvbox-dark';
+        var validThemes = ['gruvbox-dark', 'catppuccin-mocha', 'solarized-light'];
+        if (validThemes.indexOf(theme) === -1) theme = 'gruvbox-dark';
+        document.documentElement.classList.add('theme-' + theme);
       })();
     </script>
     <div id="root"></div>

@@ -1,17 +1,16 @@
 import { useMutation, useQuery } from "convex/react";
 import {
+  Check,
   Download,
   FileJson,
   FileSpreadsheet,
-  Moon,
   Palette,
   RefreshCw,
-  Sun,
   Trash2,
   Upload,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,31 +23,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/hooks/useTheme";
 import { decompressGzip, parseMALXml } from "@/lib/mal-xml-parser";
 import { api } from "../../convex/_generated/api";
 
-const ACCENT_COLORS = [
-  { name: "Orange", value: "hsl(24, 95%, 53%)", class: "bg-orange-500" },
-  { name: "Blue", value: "hsl(217, 91%, 60%)", class: "bg-blue-500" },
-  { name: "Green", value: "hsl(142, 71%, 45%)", class: "bg-green-500" },
-  { name: "Purple", value: "hsl(262, 83%, 58%)", class: "bg-purple-500" },
-  { name: "Pink", value: "hsl(330, 81%, 60%)", class: "bg-pink-500" },
-  { name: "Red", value: "hsl(0, 84%, 60%)", class: "bg-red-500" },
-];
-
 export function SettingsPage() {
   // Theme state
-  const [accentColor, setAccentColor] = useState(() => {
-    const stored = localStorage.getItem("curator-accent");
-    // Handle legacy values without hsl() wrapper
-    if (stored && !stored.startsWith("hsl(")) {
-      return `hsl(${stored.replace(/\s+/g, ", ")})`;
-    }
-    return stored || "hsl(24, 95%, 53%)";
-  });
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    return localStorage.getItem("curator-theme") !== "light";
-  });
+  const { theme, setTheme, themes } = useTheme();
 
   // MAL import state
   const [importError, setImportError] = useState<string | null>(null);
@@ -75,22 +56,6 @@ export function SettingsPage() {
   const startRefetchFailedCovers = useMutation(
     (api as any).importJobMutations?.startRefetchFailedCovers,
   );
-
-  // Apply theme changes
-  useEffect(() => {
-    document.documentElement.style.setProperty("--primary", accentColor);
-    localStorage.setItem("curator-accent", accentColor);
-  }, [accentColor]);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("curator-theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("curator-theme", "light");
-    }
-  }, [isDarkMode]);
 
   // File import handler
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,7 +182,7 @@ export function SettingsPage() {
     <div className="space-y-8 max-w-2xl">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
-        <p className="text-neutral-400 mt-2">
+        <p className="text-foreground-muted mt-2">
           Manage your preferences, import data, and export your library
         </p>
       </div>
@@ -229,52 +194,63 @@ export function SettingsPage() {
           Appearance
         </h2>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-4 space-y-4">
-          {/* Dark Mode Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium">Theme</div>
-              <div className="text-sm text-neutral-400">
-                Switch between dark and light mode
-              </div>
+        <div className="bg-surface border border-border p-4 space-y-4">
+          <div>
+            <div className="font-medium mb-1">Theme</div>
+            <div className="text-sm text-foreground-muted mb-3">
+              Choose your preferred color theme
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="gap-2"
-            >
-              {isDarkMode ? (
-                <>
-                  <Moon className="size-4" />
-                  Dark
-                </>
-              ) : (
-                <>
-                  <Sun className="size-4" />
-                  Light
-                </>
-              )}
-            </Button>
           </div>
 
-          {/* Accent Color */}
-          <div>
-            <div className="font-medium mb-2">Accent Color</div>
+          {/* Dark Themes */}
+          <div className="space-y-2">
+            <div className="text-xs text-foreground-subtle uppercase tracking-wider">
+              Dark Themes
+            </div>
             <div className="flex gap-2">
-              {ACCENT_COLORS.map((color) => (
-                <button
-                  type="button"
-                  key={color.value}
-                  onClick={() => setAccentColor(color.value)}
-                  className={`w-8 h-8 ${color.class} border-2 transition-all ${
-                    accentColor === color.value
-                      ? "border-white scale-110"
-                      : "border-transparent hover:scale-105"
-                  }`}
-                  title={color.name}
-                />
-              ))}
+              {themes
+                .filter((t) => t.group === "dark")
+                .map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTheme(t.id)}
+                    className={`flex items-center gap-2 px-3 py-2 border transition-all ${
+                      theme === t.id
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {theme === t.id && <Check className="size-4" />}
+                    {t.name}
+                  </button>
+                ))}
+            </div>
+          </div>
+
+          {/* Light Themes */}
+          <div className="space-y-2">
+            <div className="text-xs text-foreground-subtle uppercase tracking-wider">
+              Light Themes
+            </div>
+            <div className="flex gap-2">
+              {themes
+                .filter((t) => t.group === "light")
+                .map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setTheme(t.id)}
+                    className={`flex items-center gap-2 px-3 py-2 border transition-all ${
+                      theme === t.id
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    {theme === t.id && <Check className="size-4" />}
+                    {t.name}
+                  </button>
+                ))}
             </div>
           </div>
         </div>
@@ -287,8 +263,8 @@ export function SettingsPage() {
           Import from MyAnimeList
         </h2>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-4 space-y-4">
-          <p className="text-sm text-neutral-400">
+        <div className="bg-surface border border-border p-4 space-y-4">
+          <p className="text-sm text-foreground-muted">
             Import your anime/manga from MAL using the XML export. Scores will
             be converted to Elo ratings (MAL 10 = 1800, MAL 7 = 1500, MAL 1 =
             900).
@@ -296,7 +272,7 @@ export function SettingsPage() {
 
           <div className="text-sm space-y-2">
             <p className="font-medium">How to export from MAL:</p>
-            <ol className="list-decimal list-inside text-neutral-400 space-y-1">
+            <ol className="list-decimal list-inside text-foreground-muted space-y-1">
               <li>Go to your MAL profile → Settings → Import/Export</li>
               <li>Click "Export My List" (Anime or Manga)</li>
               <li>Upload the .xml.gz file below (no need to unzip)</li>
@@ -309,23 +285,23 @@ export function SettingsPage() {
               accept=".xml,.gz"
               onChange={handleFileImport}
               disabled={parsingFile || !!activeImport}
-              className="flex-1 text-sm text-neutral-400 file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-neutral-800 file:text-neutral-200 hover:file:bg-neutral-700 disabled:opacity-50"
+              className="flex-1 text-sm text-foreground-muted file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:bg-surface-raised file:text-foreground hover:file:bg-surface-overlay disabled:opacity-50"
             />
           </div>
 
           {parsingFile && (
-            <div className="text-sm text-neutral-400">Parsing file...</div>
+            <div className="text-sm text-foreground-muted">Parsing file...</div>
           )}
 
           {activeImport && (
             <div className="space-y-2">
-              <div className="text-sm text-neutral-400">
+              <div className="text-sm text-foreground-muted">
                 {activeImport.status === "pending" && "Starting import..."}
                 {activeImport.status === "processing" &&
                   `Importing: ${activeImport.processedItems}/${activeImport.totalItems}`}
               </div>
               {activeImport.totalItems > 0 && (
-                <div className="w-full bg-neutral-800 h-2">
+                <div className="w-full bg-surface-raised h-2">
                   <div
                     className="bg-primary h-full transition-all"
                     style={{ width: `${activeImport.progress}%` }}
@@ -344,13 +320,13 @@ export function SettingsPage() {
 
           {/* Refetch Failed Covers */}
           {failedCovers && failedCovers.length > 0 && (
-            <div className="pt-4 border-t border-neutral-800 space-y-2">
+            <div className="pt-4 border-t border-border space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="font-medium text-sm">
                     {failedCovers.length} items with missing covers
                   </div>
-                  <div className="text-xs text-neutral-400">
+                  <div className="text-xs text-foreground-muted">
                     These items failed to fetch cover images from AniList
                   </div>
                 </div>
@@ -386,8 +362,8 @@ export function SettingsPage() {
           Export Data
         </h2>
 
-        <div className="bg-neutral-900 border border-neutral-800 p-4 space-y-4">
-          <p className="text-sm text-neutral-400">
+        <div className="bg-surface border border-border p-4 space-y-4">
+          <p className="text-sm text-foreground-muted">
             Download your library data for backup or analysis.
           </p>
 
@@ -413,7 +389,7 @@ export function SettingsPage() {
           </div>
 
           {fullExport && (
-            <div className="text-xs text-neutral-500">
+            <div className="text-xs text-foreground-subtle">
               {fullExport.stats.totalItems} items,{" "}
               {fullExport.stats.totalComparisons} comparisons
             </div>
@@ -428,11 +404,11 @@ export function SettingsPage() {
           Danger Zone
         </h2>
 
-        <div className="bg-neutral-900 border border-red-900/50 p-4 space-y-6">
+        <div className="bg-surface border border-red-900/50 p-4 space-y-6">
           {/* Clear All Data */}
           <div className="space-y-2">
             <div className="font-medium">Clear All Data</div>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-foreground-muted">
               Delete all library items, media entries, and comparisons. Use this
               before re-importing your list.
             </p>
@@ -467,7 +443,7 @@ export function SettingsPage() {
           {/* Reset Rankings */}
           <div className="space-y-2">
             <div className="font-medium">Reset All Rankings</div>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-foreground-muted">
               Reset all Elo ratings to 1500 and clear comparison history. Items
               will remain in your library.
             </p>

@@ -21,25 +21,26 @@ export const STATUS_CONFIG: Record<
 > = {
   COMPLETED: {
     label: "Completed",
-    className: "bg-green-600/20 text-green-400 border-green-600/30",
+    className:
+      "bg-status-completed text-status-completed-fg border-transparent",
   },
   WATCHING: {
     label: "Watching",
     mangaLabel: "Reading",
-    className: "bg-blue-600/20 text-blue-400 border-blue-600/30",
+    className: "bg-status-watching text-status-watching-fg border-transparent",
   },
   PLAN_TO_WATCH: {
     label: "Plan to Watch",
     mangaLabel: "Plan to Read",
-    className: "bg-yellow-600/20 text-yellow-400 border-yellow-600/30",
+    className: "bg-status-plan text-status-plan-fg border-transparent",
   },
   DROPPED: {
     label: "Dropped",
-    className: "bg-red-600/20 text-red-400 border-red-600/30",
+    className: "bg-status-dropped text-status-dropped-fg border-transparent",
   },
   ON_HOLD: {
     label: "On Hold",
-    className: "bg-orange-600/20 text-orange-400 border-orange-600/30",
+    className: "bg-status-hold text-status-hold-fg border-transparent",
   },
 };
 
