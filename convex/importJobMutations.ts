@@ -7,6 +7,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
+import { requireAuthUserId } from "./lib/auth";
 import { GLICKO_DEFAULT_RD, GLICKO_DEFAULT_VOLATILITY } from "./lib/constants";
 import { importLogger } from "./lib/logger";
 import { malScoreToRating, malStatusToWatchStatus } from "./lib/malUtils";
@@ -27,10 +28,13 @@ export const startImport = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
+
     const BATCH_SIZE = 5;
     const totalBatches = Math.ceil(args.items.length / BATCH_SIZE);
 
     const jobId = await ctx.db.insert("importJobs", {
+      userId,
       status: "pending",
       items: args.items,
       totalItems: args.items.length,
@@ -116,6 +120,7 @@ export const completeJob = internalMutation({
 
 export const importSingleItem = internalMutation({
   args: {
+    userId: v.string(),
     item: v.object({
       malId: v.number(),
       type: v.union(v.literal("ANIME"), v.literal("MANGA")),
@@ -140,7 +145,7 @@ export const importSingleItem = internalMutation({
       }),
     ),
   },
-  handler: async (ctx, { item, anilistData }) => {
+  handler: async (ctx, { userId, item, anilistData }) => {
     try {
       const existingByMal = await ctx.db
         .query("mediaItems")
@@ -190,7 +195,8 @@ export const importSingleItem = internalMutation({
 
       const existingInLibrary = await ctx.db
         .query("userLibrary")
-        .withIndex("by_media_item", (q) => q.eq("mediaItemId", mediaItemId))
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("mediaItemId"), mediaItemId))
         .first();
 
       if (existingInLibrary) {
@@ -201,7 +207,6 @@ export const importSingleItem = internalMutation({
       const rating = malScoreToRating(item.score);
       const watchStatus = malStatusToWatchStatus(item.malStatus);
 
-      // Get cover image and title for denormalized fields (prefer English title)
       const coverImage =
         anilistData?.coverImage ??
         `https://cdn.myanimelist.net/images/${item.type.toLowerCase()}/${item.malId}.jpg`;
@@ -210,14 +215,13 @@ export const importSingleItem = internalMutation({
       const genres = anilistData?.genres ?? [];
 
       await ctx.db.insert("userLibrary", {
+        userId,
         mediaItemId,
-        // Denormalized fields
         mediaTitle: title,
         mediaCoverImage: coverImage,
         mediaBannerImage: anilistData?.bannerImage,
         mediaType: item.type,
         mediaGenres: genres,
-        // Glicko-2 fields
         rating,
         rd: GLICKO_DEFAULT_RD,
         volatility: GLICKO_DEFAULT_VOLATILITY,
@@ -233,6 +237,7 @@ export const importSingleItem = internalMutation({
 
       await updateStatsOnLibraryChange(
         ctx,
+        userId,
         item.type,
         GLICKO_DEFAULT_RD,
         "add",
@@ -271,6 +276,8 @@ export const getImportStatus = query({
 export const startRefetchFailedCovers = mutation({
   args: {},
   handler: async (ctx) => {
+    await requireAuthUserId(ctx);
+
     const mediaItems = await ctx.db.query("mediaItems").collect();
     const failedItems = mediaItems.flatMap((item) => {
       if (item.anilistId < 0 && item.malId !== undefined) {

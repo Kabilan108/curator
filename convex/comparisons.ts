@@ -2,6 +2,7 @@ import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
 import { mutation, query } from "./_generated/server";
+import { getAuthUserId, requireAuthUserId } from "./lib/auth";
 import {
   COMPARISON_RESURFACE_DAYS_ESTABLISHED,
   COMPARISON_RESURFACE_DAYS_NEW,
@@ -28,6 +29,7 @@ function getOrderedPairIds(
 
 async function upsertComparisonPair(
   ctx: MutationCtx,
+  userId: string,
   id1: Id<"userLibrary">,
   id2: Id<"userLibrary">,
 ) {
@@ -46,6 +48,7 @@ async function upsertComparisonPair(
     });
   } else {
     await ctx.db.insert("comparisonPairs", {
+      userId,
       itemA,
       itemB,
       comparisonCount: 1,
@@ -57,7 +60,13 @@ async function upsertComparisonPair(
 export const getRandomPair = query({
   args: {},
   handler: async (ctx) => {
-    const allItems = await ctx.db.query("userLibrary").collect();
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
+    const allItems = await ctx.db
+      .query("userLibrary")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
 
     if (allItems.length < 2) {
       return null;
@@ -83,6 +92,7 @@ export const recordComparison = mutation({
     loserId: v.id("userLibrary"),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
     const now = Date.now();
 
     const winner = await ctx.db.get(args.winnerId);
@@ -90,6 +100,10 @@ export const recordComparison = mutation({
 
     if (!winner || !loser) {
       throw new Error("One or both items not found");
+    }
+
+    if (winner.userId !== userId || loser.userId !== userId) {
+      throw new Error("Not authorized to compare these items");
     }
 
     const winnerRating: RatingData = {
@@ -132,27 +146,30 @@ export const recordComparison = mutation({
 
     await updateRankedCount(
       ctx,
+      userId,
       winner.mediaType,
       winner.rd <= RD_CONFIDENCE_THRESHOLD,
       result.winner.rd <= RD_CONFIDENCE_THRESHOLD,
     );
     await updateRankedCount(
       ctx,
+      userId,
       loser.mediaType,
       loser.rd <= RD_CONFIDENCE_THRESHOLD,
       result.loser.rd <= RD_CONFIDENCE_THRESHOLD,
     );
 
     const comparisonId = await ctx.db.insert("comparisons", {
+      userId,
       winnerId: args.winnerId,
       loserId: args.loserId,
       isTie: false,
       createdAt: now,
     });
 
-    await upsertComparisonPair(ctx, args.winnerId, args.loserId);
+    await upsertComparisonPair(ctx, userId, args.winnerId, args.loserId);
 
-    await updateStatsAfterComparison(ctx, false);
+    await updateStatsAfterComparison(ctx, userId, false);
 
     return {
       comparisonId,
@@ -181,6 +198,7 @@ export const recordTie = mutation({
     item2Id: v.id("userLibrary"),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
     const now = Date.now();
 
     const item1 = await ctx.db.get(args.item1Id);
@@ -188,6 +206,10 @@ export const recordTie = mutation({
 
     if (!item1 || !item2) {
       throw new Error("One or both items not found");
+    }
+
+    if (item1.userId !== userId || item2.userId !== userId) {
+      throw new Error("Not authorized to compare these items");
     }
 
     const item1Rating: RatingData = {
@@ -230,27 +252,30 @@ export const recordTie = mutation({
 
     await updateRankedCount(
       ctx,
+      userId,
       item1.mediaType,
       item1.rd <= RD_CONFIDENCE_THRESHOLD,
       result.item1.rd <= RD_CONFIDENCE_THRESHOLD,
     );
     await updateRankedCount(
       ctx,
+      userId,
       item2.mediaType,
       item2.rd <= RD_CONFIDENCE_THRESHOLD,
       result.item2.rd <= RD_CONFIDENCE_THRESHOLD,
     );
 
     const comparisonId = await ctx.db.insert("comparisons", {
+      userId,
       winnerId: args.item1Id,
       loserId: args.item2Id,
       isTie: true,
       createdAt: now,
     });
 
-    await upsertComparisonPair(ctx, args.item1Id, args.item2Id);
+    await upsertComparisonPair(ctx, userId, args.item1Id, args.item2Id);
 
-    await updateStatsAfterComparison(ctx, true);
+    await updateStatsAfterComparison(ctx, userId, true);
 
     return {
       comparisonId,
@@ -322,9 +347,15 @@ export const undoComparison = mutation({
     item2OldTies: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
+
     const comparison = await ctx.db.get(args.comparisonId);
     if (!comparison) {
       throw new Error("Comparison not found");
+    }
+
+    if (comparison.userId !== userId) {
+      throw new Error("Not authorized to undo this comparison");
     }
 
     const item1 = await ctx.db.get(args.item1Id);
@@ -365,12 +396,14 @@ export const undoComparison = mutation({
 
     await updateRankedCount(
       ctx,
+      userId,
       item1.mediaType,
       item1WasRanked,
       item1WillBeRanked,
     );
     await updateRankedCount(
       ctx,
+      userId,
       item2.mediaType,
       item2WasRanked,
       item2WillBeRanked,
@@ -380,7 +413,10 @@ export const undoComparison = mutation({
 
     await decrementComparisonPair(ctx, args.item1Id, args.item2Id);
 
-    const stats = await ctx.db.query("userStats").first();
+    const stats = await ctx.db
+      .query("userStats")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
     if (stats) {
       await ctx.db.patch(stats._id, {
         totalComparisons: Math.max(0, stats.totalComparisons - 1),
@@ -396,10 +432,13 @@ export const undoComparison = mutation({
 export const getHistory = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const limit = args.limit ?? 50;
     const comparisons = await ctx.db
       .query("comparisons")
-      .withIndex("by_created_at")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .take(limit);
 

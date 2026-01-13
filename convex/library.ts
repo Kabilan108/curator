@@ -1,6 +1,7 @@
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { getAuthUserId, requireAuthUserId } from "./lib/auth";
 import {
   GLICKO_DEFAULT_RATING,
   GLICKO_DEFAULT_RD,
@@ -11,7 +12,13 @@ import { updateStatsOnLibraryChange } from "./stats";
 export const getAnilistIds = query({
   args: {},
   handler: async (ctx) => {
-    const libraryItems = await ctx.db.query("userLibrary").collect();
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
+    const libraryItems = await ctx.db
+      .query("userLibrary")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
 
     const anilistIds = await Promise.all(
       libraryItems.map(async (item) => {
@@ -27,8 +34,12 @@ export const getAnilistIds = query({
 export const getAll = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const libraryItems = await ctx.db
       .query("userLibrary")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
 
@@ -39,23 +50,29 @@ export const getAll = query({
 export const getByRating = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const libraryItems = await ctx.db
       .query("userLibrary")
-      .withIndex("by_rating")
-      .order("desc")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
 
-    return libraryItems;
+    return libraryItems.sort((a, b) => b.rating - a.rating);
   },
 });
 
 export const getByRatingPaginated = query({
   args: { paginationOpts: paginationOptsValidator },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return { page: [], isDone: true, continueCursor: "" };
+    }
+
     const results = await ctx.db
       .query("userLibrary")
-      .withIndex("by_rating")
-      .order("desc")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .paginate(args.paginationOpts);
 
     return results;
@@ -65,15 +82,24 @@ export const getByRatingPaginated = query({
 export const getById = query({
   args: { id: v.id("userLibrary") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
+    const item = await ctx.db.get(args.id);
+    if (!item || item.userId !== userId) return null;
+
+    return item;
   },
 });
 
 export const getByIdWithDetails = query({
   args: { id: v.id("userLibrary") },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
     const libraryItem = await ctx.db.get(args.id);
-    if (!libraryItem) return null;
+    if (!libraryItem || libraryItem.userId !== userId) return null;
 
     const mediaItem = await ctx.db.get(libraryItem.mediaItemId);
     if (!mediaItem) return null;
@@ -97,9 +123,12 @@ export const addToLibrary = mutation({
     ),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
+
     const existing = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_item", (q) => q.eq("mediaItemId", args.mediaItemId))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("mediaItemId"), args.mediaItemId))
       .first();
 
     if (existing) {
@@ -113,6 +142,7 @@ export const addToLibrary = mutation({
 
     const now = Date.now();
     const id = await ctx.db.insert("userLibrary", {
+      userId,
       mediaItemId: args.mediaItemId,
       mediaTitle: media.titleEnglish || media.title,
       mediaCoverImage: media.coverImage,
@@ -132,7 +162,7 @@ export const addToLibrary = mutation({
       updatedAt: now,
     });
 
-    await updateStatsOnLibraryChange(ctx, media.type, GLICKO_DEFAULT_RD, "add");
+    await updateStatsOnLibraryChange(ctx, userId, media.type, GLICKO_DEFAULT_RD, "add");
 
     return id;
   },
@@ -141,10 +171,14 @@ export const addToLibrary = mutation({
 export const removeFromLibrary = mutation({
   args: { id: v.id("userLibrary") },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
+
     const item = await ctx.db.get(args.id);
-    if (item) {
-      await updateStatsOnLibraryChange(ctx, item.mediaType, item.rd, "remove");
+    if (!item || item.userId !== userId) {
+      throw new Error("Item not found or not authorized");
     }
+
+    await updateStatsOnLibraryChange(ctx, userId, item.mediaType, item.rd, "remove");
     await ctx.db.delete(args.id);
   },
 });
@@ -166,8 +200,14 @@ export const updateLibraryItem = mutation({
     customTitle: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const userId = await requireAuthUserId(ctx);
+
     const { id, watchStatus, ...otherUpdates } = args;
     const item = await ctx.db.get(id);
+
+    if (!item || item.userId !== userId) {
+      throw new Error("Item not found or not authorized");
+    }
 
     const updates: Record<string, unknown> = {
       ...otherUpdates,

@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
+import { getAuthUserId } from "./lib/auth";
 import { CLOSE_RATING_RANGE, RD_CONFIDENCE_THRESHOLD } from "./lib/constants";
 
 const RANKABLE_STATUSES = [
@@ -98,9 +99,13 @@ export const getSmartPair = query({
     skippedPairs: v.optional(v.array(v.array(v.id("userLibrary")))),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
     const allItems = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_type", (q) => q.eq("mediaType", args.mediaType))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("mediaType"), args.mediaType))
       .collect();
 
     const rankableItems = allItems.filter((item) =>
@@ -120,9 +125,23 @@ export const getSmartPairWithStats = query({
     skippedPairs: v.optional(v.array(v.array(v.id("userLibrary")))),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return {
+        pair: null,
+        stats: {
+          totalItems: 0,
+          itemsNeedingReranking: 0,
+          unrankedItems: 0,
+          averageComparisons: 0,
+        },
+      };
+    }
+
     const allItems = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_type", (q) => q.eq("mediaType", args.mediaType))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("mediaType"), args.mediaType))
       .collect();
 
     const rankableItems = allItems.filter((item) =>
@@ -274,18 +293,37 @@ export const getRankingStats = query({
     mediaType: v.optional(v.union(v.literal("ANIME"), v.literal("MANGA"))),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return {
+        totalItems: 0,
+        totalComparisons: 0,
+        totalTies: 0,
+        itemsNeedingReranking: 0,
+        unrankedItems: 0,
+        averageComparisons: 0,
+      };
+    }
+
     let filteredItems: Doc<"userLibrary">[];
     if (args.mediaType) {
       const mediaType = args.mediaType;
       filteredItems = await ctx.db
         .query("userLibrary")
-        .withIndex("by_media_type", (q) => q.eq("mediaType", mediaType))
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .filter((q) => q.eq(q.field("mediaType"), mediaType))
         .collect();
     } else {
-      filteredItems = await ctx.db.query("userLibrary").collect();
+      filteredItems = await ctx.db
+        .query("userLibrary")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
     }
 
-    const comparisons = await ctx.db.query("comparisons").collect();
+    const comparisons = await ctx.db
+      .query("comparisons")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
 
     const ties = comparisons.filter((c) => c.isTie).length;
 
@@ -319,9 +357,13 @@ export const getItemsWithPercentile = query({
     mediaType: v.union(v.literal("ANIME"), v.literal("MANGA")),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const filteredItems = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_type", (q) => q.eq("mediaType", args.mediaType))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) => q.eq(q.field("mediaType"), args.mediaType))
       .collect();
 
     const sorted = filteredItems.sort((a, b) => b.rating - a.rating);
@@ -347,8 +389,22 @@ export const getItemsWithPercentile = query({
 export const getDueComparisons = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return {
+        hasDueComparisons: false,
+        dueCount: 0,
+        needsReranking: 0,
+        scheduled: 0,
+        unrankedItems: 0,
+      };
+    }
+
     const now = Date.now();
-    const allItems = await ctx.db.query("userLibrary").collect();
+    const allItems = await ctx.db
+      .query("userLibrary")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
 
     const dueItems = allItems.filter((item) => {
       if (item.needsReranking) return true;
@@ -375,10 +431,17 @@ export const getRankedItems = query({
     mediaType: v.union(v.literal("ANIME"), v.literal("MANGA")),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const items = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_type_and_rd", (q) =>
-        q.eq("mediaType", args.mediaType).lte("rd", RD_CONFIDENCE_THRESHOLD),
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("mediaType"), args.mediaType),
+          q.lte(q.field("rd"), RD_CONFIDENCE_THRESHOLD),
+        ),
       )
       .collect();
 
@@ -391,10 +454,17 @@ export const getUnrankedItems = query({
     mediaType: v.union(v.literal("ANIME"), v.literal("MANGA")),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
     const items = await ctx.db
       .query("userLibrary")
-      .withIndex("by_media_type_and_rd", (q) =>
-        q.eq("mediaType", args.mediaType).gt("rd", RD_CONFIDENCE_THRESHOLD),
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("mediaType"), args.mediaType),
+          q.gt(q.field("rd"), RD_CONFIDENCE_THRESHOLD),
+        ),
       )
       .collect();
 
@@ -407,21 +477,22 @@ export const getUnrankedCount = query({
     mediaType: v.optional(v.union(v.literal("ANIME"), v.literal("MANGA"))),
   },
   handler: async (ctx, args) => {
-    const { mediaType } = args;
-    if (mediaType) {
-      const items = await ctx.db
-        .query("userLibrary")
-        .withIndex("by_media_type_and_rd", (q) =>
-          q.eq("mediaType", mediaType).gt("rd", RD_CONFIDENCE_THRESHOLD),
-        )
-        .collect();
-      return items.length;
-    }
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return 0;
 
+    const { mediaType } = args;
     const allItems = await ctx.db
       .query("userLibrary")
-      .withIndex("by_rd", (q) => q.gt("rd", RD_CONFIDENCE_THRESHOLD))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-    return allItems.length;
+
+    if (mediaType) {
+      return allItems.filter(
+        (item) =>
+          item.mediaType === mediaType && item.rd > RD_CONFIDENCE_THRESHOLD,
+      ).length;
+    }
+
+    return allItems.filter((item) => item.rd > RD_CONFIDENCE_THRESHOLD).length;
   },
 });

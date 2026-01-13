@@ -197,6 +197,12 @@ export const processBatch = internalAction({
       return;
     }
 
+    if (!job.userId) {
+      console.error("Import job missing userId, cannot continue");
+      return;
+    }
+
+    const { userId } = job;
     const startIdx = batchIndex * BATCH_SIZE;
     const endIdx = Math.min(startIdx + BATCH_SIZE, job.items.length);
     const batchItems = job.items.slice(startIdx, endIdx);
@@ -239,6 +245,7 @@ export const processBatch = internalAction({
       const result = await ctx.runMutation(
         internal.importJobMutations.importSingleItem,
         {
+          userId,
           item,
           anilistData: media
             ? {

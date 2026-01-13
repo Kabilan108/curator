@@ -14,6 +14,7 @@ import type * as export_ from "../export.js";
 import type * as import_ from "../import.js";
 import type * as importJob from "../importJob.js";
 import type * as importJobMutations from "../importJobMutations.js";
+import type * as lib_auth from "../lib/auth.js";
 import type * as lib_constants from "../lib/constants.js";
 import type * as lib_glicko2 from "../lib/glicko2.js";
 import type * as lib_logger from "../lib/logger.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   import: typeof import_;
   importJob: typeof importJob;
   importJobMutations: typeof importJobMutations;
+  "lib/auth": typeof lib_auth;
   "lib/constants": typeof lib_constants;
   "lib/glicko2": typeof lib_glicko2;
   "lib/logger": typeof lib_logger;

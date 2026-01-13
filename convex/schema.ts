@@ -60,8 +60,8 @@ export default defineSchema({
   userLibrary: defineTable({
     mediaItemId: v.id("mediaItems"),
 
-    // Multi-user support (nullable until auth implemented)
-    userId: v.optional(v.string()),
+    // User who owns this library item
+    userId: v.string(),
 
     // Denormalized from mediaItems for query performance
     mediaTitle: v.string(),
@@ -120,8 +120,8 @@ export default defineSchema({
 
   // Comparison history for rating calculations
   comparisons: defineTable({
-    // Multi-user support (nullable until auth implemented)
-    userId: v.optional(v.string()),
+    // User who made this comparison
+    userId: v.string(),
 
     winnerId: v.id("userLibrary"),
     loserId: v.id("userLibrary"),
@@ -135,8 +135,8 @@ export default defineSchema({
 
   // Track comparison pairs for duplicate prevention
   comparisonPairs: defineTable({
-    // Multi-user support (nullable until auth implemented)
-    userId: v.optional(v.string()),
+    // User who owns this pair tracking
+    userId: v.string(),
 
     // Items are stored with itemA._id < itemB._id for consistent lookup
     itemA: v.id("userLibrary"),
@@ -185,10 +185,10 @@ export default defineSchema({
     .index("by_custom_field", ["customFieldId"])
     .index("by_user_library_and_field", ["userLibraryId", "customFieldId"]),
 
-  // Aggregated user stats - singleton table for O(1) stats reads
+  // Aggregated user stats - one row per user for O(1) stats reads
   userStats: defineTable({
-    // Multi-user support (nullable until auth implemented)
-    userId: v.optional(v.string()),
+    // User who owns these stats
+    userId: v.string(),
 
     // Comparison stats
     totalComparisons: v.number(),
@@ -218,6 +218,9 @@ export default defineSchema({
 
   // Import jobs for tracking MAL import progress
   importJobs: defineTable({
+    // User who started this import
+    userId: v.string(),
+
     status: v.union(
       v.literal("pending"),
       v.literal("processing"),
