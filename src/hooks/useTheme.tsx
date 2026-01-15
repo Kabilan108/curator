@@ -1,4 +1,10 @@
-import { useEffect, useState } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 export type ThemeId = "gruvbox-dark" | "catppuccin-mocha" | "solarized-light";
 export type ThemeGroup = "dark" | "light";
@@ -35,20 +41,38 @@ function applyTheme(themeId: ThemeId): void {
   root.classList.add(`theme-${themeId}`);
 }
 
-export function useTheme(): {
+interface ThemeContextValue {
   theme: ThemeId;
   setTheme: (theme: ThemeId) => void;
   themes: Theme[];
   currentTheme: Theme;
-} {
+}
+
+const ThemeContext = createContext<ThemeContextValue | null>(null);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<ThemeId>(getStoredTheme);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(theme);
     localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
   const currentTheme = THEMES.find((t) => t.id === theme) ?? THEMES[0];
 
-  return { theme, setTheme, themes: THEMES, currentTheme };
+  return (
+    <ThemeContext.Provider
+      value={{ theme, setTheme, themes: THEMES, currentTheme }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme(): ThemeContextValue {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 }

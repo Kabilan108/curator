@@ -162,7 +162,13 @@ export const addToLibrary = mutation({
       updatedAt: now,
     });
 
-    await updateStatsOnLibraryChange(ctx, userId, media.type, GLICKO_DEFAULT_RD, "add");
+    await updateStatsOnLibraryChange(
+      ctx,
+      userId,
+      media.type,
+      GLICKO_DEFAULT_RD,
+      "add",
+    );
 
     return id;
   },
@@ -178,7 +184,13 @@ export const removeFromLibrary = mutation({
       throw new Error("Item not found or not authorized");
     }
 
-    await updateStatsOnLibraryChange(ctx, userId, item.mediaType, item.rd, "remove");
+    await updateStatsOnLibraryChange(
+      ctx,
+      userId,
+      item.mediaType,
+      item.rd,
+      "remove",
+    );
     await ctx.db.delete(args.id);
   },
 });

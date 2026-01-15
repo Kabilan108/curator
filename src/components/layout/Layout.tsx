@@ -1,9 +1,7 @@
-import { SignInButton, UserButton } from "@clerk/clerk-react";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import {
   GitCompare,
   Home,
-  LogIn,
   PanelLeft,
   PanelLeftClose,
   Search,
@@ -11,6 +9,7 @@ import {
 } from "lucide-react";
 import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
+import { SignInDialog, UserMenu } from "@/components/auth";
 import {
   Tooltip,
   TooltipContent,
@@ -63,29 +62,10 @@ function BottomNav({ unrankedCount }: { unrankedCount: number }) {
           );
         })}
         <Authenticated>
-          <div className="flex flex-col items-center justify-center gap-1 px-4 py-2">
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-6 h-6",
-                },
-              }}
-            />
-            <span className="text-xs font-medium text-foreground-muted">
-              Account
-            </span>
-          </div>
+          <UserMenu collapsed />
         </Authenticated>
         <Unauthenticated>
-          <SignInButton mode="modal">
-            <button
-              type="button"
-              className="flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-colors flex-1 text-foreground-muted hover:text-foreground"
-            >
-              <LogIn className="w-6 h-6" />
-              <span className="text-xs font-medium">Sign In</span>
-            </button>
-          </SignInButton>
+          <SignInDialog variant="bottom-nav" />
         </Unauthenticated>
       </div>
     </nav>
@@ -167,21 +147,6 @@ function Sidebar({ unrankedCount }: { unrankedCount: number }) {
     </button>
   );
 
-  const signInButton = (
-    <SignInButton mode="modal">
-      <button
-        type="button"
-        className={cn(
-          "flex items-center rounded-md transition-colors text-foreground-muted hover:bg-surface-raised hover:text-foreground",
-          isCollapsed ? "w-10 h-10 justify-center" : "gap-3 px-3 py-2.5 w-full",
-        )}
-      >
-        <LogIn className="w-5 h-5 shrink-0" />
-        {!isCollapsed && <span className="text-sm font-medium">Sign In</span>}
-      </button>
-    </SignInButton>
-  );
-
   return (
     <aside
       className={cn(
@@ -228,34 +193,16 @@ function Sidebar({ unrankedCount }: { unrankedCount: number }) {
         )}
       >
         <Authenticated>
-          <div
-            className={cn(
-              "flex items-center",
-              isCollapsed ? "justify-center" : "gap-3 px-3 py-2.5",
-            )}
-          >
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                },
-              }}
-            />
-            {!isCollapsed && (
-              <span className="text-sm font-medium text-foreground-muted">
-                Account
-              </span>
-            )}
-          </div>
+          <UserMenu collapsed={isCollapsed} />
         </Authenticated>
         <Unauthenticated>
           {isCollapsed ? (
             <Tooltip>
-              <TooltipTrigger render={signInButton} />
+              <TooltipTrigger render={<SignInDialog collapsed />} />
               <TooltipContent side="right">Sign In</TooltipContent>
             </Tooltip>
           ) : (
-            signInButton
+            <SignInDialog />
           )}
         </Unauthenticated>
         {isCollapsed ? (

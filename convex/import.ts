@@ -86,7 +86,13 @@ export const importMalItem = mutation({
       updatedAt: now,
     });
 
-    await updateStatsOnLibraryChange(ctx, userId, args.type, GLICKO_DEFAULT_RD, "add");
+    await updateStatsOnLibraryChange(
+      ctx,
+      userId,
+      args.type,
+      GLICKO_DEFAULT_RD,
+      "add",
+    );
 
     return { skipped: false, mediaItemId, rating };
   },
