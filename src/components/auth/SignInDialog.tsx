@@ -3,17 +3,12 @@ import { LogIn } from "lucide-react";
 import { useState } from "react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { signInAppearance } from "@/lib/clerkAppearance";
-import { cn } from "@/lib/utils";
 
 interface SignInButtonProps {
-  collapsed?: boolean;
-  variant?: "sidebar" | "bottom-nav";
+  variant?: "header" | "bottom-nav";
 }
 
-export function SignInDialog({
-  collapsed = false,
-  variant = "sidebar",
-}: SignInButtonProps) {
+export function SignInDialog({ variant = "header" }: SignInButtonProps) {
   const [open, setOpen] = useState(false);
 
   const triggerButton =
@@ -28,13 +23,9 @@ export function SignInDialog({
     ) : (
       <button
         type="button"
-        className={cn(
-          "flex items-center rounded-md transition-colors text-foreground-muted hover:bg-surface-raised hover:text-foreground",
-          collapsed ? "w-10 h-10 justify-center" : "gap-3 px-3 py-2.5 w-full",
-        )}
+        className="w-8 h-8 rounded-full bg-surface-raised flex items-center justify-center text-foreground-muted hover:text-foreground hover:bg-surface-raised/80 transition-colors"
       >
-        <LogIn className="w-5 h-5 shrink-0" />
-        {!collapsed && <span className="text-sm font-medium">Sign In</span>}
+        <LogIn className="w-4 h-4" />
       </button>
     );
 

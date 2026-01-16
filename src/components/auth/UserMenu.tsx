@@ -8,17 +8,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/useMediaQuery";
+import { UserMenuDrawer } from "./UserMenuDrawer";
 import { UserProfileDialog } from "./UserProfileDialog";
 
-interface UserMenuProps {
-  collapsed?: boolean;
-}
-
-export function UserMenu({ collapsed = false }: UserMenuProps) {
+export function UserMenu() {
   const { user } = useUser();
   const { signOut } = useClerk();
+  const isMobile = useIsMobile();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (!user) return null;
 
@@ -26,37 +25,50 @@ export function UserMenu({ collapsed = false }: UserMenuProps) {
     ? user.firstName.charAt(0).toUpperCase()
     : (user.emailAddresses[0]?.emailAddress?.charAt(0).toUpperCase() ?? "U");
 
+  const avatarButton = (
+    <button
+      type="button"
+      className="w-8 h-8 rounded-full overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
+    >
+      {user.imageUrl ? (
+        <img
+          src={user.imageUrl}
+          alt={user.fullName ?? "User"}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
+          {initials}
+        </div>
+      )}
+    </button>
+  );
+
+  if (isMobile) {
+    return (
+      <>
+        <button type="button" onClick={() => setDrawerOpen(true)}>
+          {avatarButton}
+        </button>
+        <UserMenuDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          onManageAccount={() => setProfileOpen(true)}
+        />
+        <UserProfileDialog open={profileOpen} onOpenChange={setProfileOpen} />
+      </>
+    );
+  }
+
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger
-          className={cn(
-            "flex items-center rounded-md transition-colors text-foreground-muted hover:bg-surface-raised hover:text-foreground outline-none",
-            collapsed ? "w-10 h-10 justify-center" : "gap-3 px-3 py-2.5 w-full",
-          )}
-        >
-          {user.imageUrl ? (
-            <img
-              src={user.imageUrl}
-              alt={user.fullName ?? "User"}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-medium">
-              {initials}
-            </div>
-          )}
-          {!collapsed && (
-            <span className="text-sm font-medium truncate">
-              {user.fullName ??
-                user.emailAddresses[0]?.emailAddress ??
-                "Account"}
-            </span>
-          )}
+        <DropdownMenuTrigger className="outline-none">
+          {avatarButton}
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          side={collapsed ? "right" : "top"}
-          align="start"
+          side="bottom"
+          align="end"
           sideOffset={8}
           className="min-w-[200px]"
         >

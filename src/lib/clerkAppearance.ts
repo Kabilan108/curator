@@ -68,51 +68,64 @@ export const signInAppearance: SignInAppearance = {
   },
 };
 
+const userProfileElements = {
+  ...baseElements,
+  rootBox: "!w-full !max-w-none !bg-background",
+  cardBox: "!w-full !max-w-none !bg-background !shadow-none",
+  card: "!w-full !max-w-none !bg-background !shadow-none m-0 p-0",
+  scrollBox: "!bg-background !shadow-none flex-1",
+  navbar:
+    "!bg-surface ![background-image:none] border-r border-border min-w-[220px]",
+  navbarButton: cn(
+    "text-foreground-muted text-xs",
+    "hover:bg-surface-raised hover:text-foreground",
+    "data-[active=true]:bg-surface-raised data-[active=true]:text-foreground",
+  ),
+  navbarButtonIcon: "w-4 h-4",
+  pageScrollBox: "p-4 !bg-background",
+  page: "gap-4 !bg-background",
+  profilePage: "!bg-background",
+  profilePage__security: "gap-4 !bg-background",
+  profileSection: "!bg-background",
+  profileSectionHeader: "!bg-background",
+  profileSectionTitle: "text-sm font-medium text-foreground",
+  profileSectionTitleText: "text-sm font-medium text-foreground",
+  profileSectionContent: "gap-3 !bg-background",
+  profileSectionPrimaryButton: cn(
+    "bg-primary text-primary-foreground text-xs font-medium",
+    "hover:bg-primary/90",
+  ),
+  formButtonReset: "text-foreground-muted text-xs hover:text-foreground",
+  avatarBox: "w-16 h-16",
+  avatarImage: "w-16 h-16",
+  userPreviewMainIdentifier: "text-sm font-medium text-foreground",
+  userPreviewSecondaryIdentifier: "text-xs text-foreground-muted",
+  accordionTriggerButton: cn(
+    "text-foreground text-xs",
+    "hover:bg-surface-raised",
+  ),
+  accordionContent: "bg-surface-raised border-border",
+  badge: "bg-surface-raised text-foreground-muted text-xs border-border",
+  menuButton: cn(
+    "text-foreground-muted text-xs",
+    "hover:bg-surface-raised hover:text-foreground",
+  ),
+  menuList: "bg-surface-overlay border-border",
+  menuItem: cn("text-foreground text-xs", "hover:bg-surface-raised"),
+};
+
 export const userProfileAppearance: UserProfileAppearance = {
   variables,
+  elements: userProfileElements,
+};
+
+export const userProfileMobileAppearance: UserProfileAppearance = {
+  variables,
   elements: {
-    ...baseElements,
-    rootBox: "!w-full !max-w-none !bg-background",
-    cardBox: "!w-full !max-w-none !bg-background !shadow-none",
-    card: "!w-full !max-w-none !bg-background !shadow-none m-0 p-0",
-    scrollBox: "!bg-background !shadow-none flex-1",
-    navbar:
-      "!bg-surface ![background-image:none] border-r border-border min-w-[220px]",
-    navbarButton: cn(
-      "text-foreground-muted text-xs",
-      "hover:bg-surface-raised hover:text-foreground",
-      "data-[active=true]:bg-surface-raised data-[active=true]:text-foreground",
-    ),
-    navbarButtonIcon: "w-4 h-4",
-    pageScrollBox: "p-4 !bg-background",
-    page: "gap-4 !bg-background",
-    profilePage: "!bg-background",
-    profilePage__security: "gap-4 !bg-background",
-    profileSection: "!bg-background",
-    profileSectionHeader: "!bg-background",
-    profileSectionTitle: "text-sm font-medium text-foreground",
-    profileSectionTitleText: "text-sm font-medium text-foreground",
-    profileSectionContent: "gap-3 !bg-background",
-    profileSectionPrimaryButton: cn(
-      "bg-primary text-primary-foreground text-xs font-medium",
-      "hover:bg-primary/90",
-    ),
-    formButtonReset: "text-foreground-muted text-xs hover:text-foreground",
-    avatarBox: "w-16 h-16",
-    avatarImage: "w-16 h-16",
-    userPreviewMainIdentifier: "text-sm font-medium text-foreground",
-    userPreviewSecondaryIdentifier: "text-xs text-foreground-muted",
-    accordionTriggerButton: cn(
-      "text-foreground text-xs",
-      "hover:bg-surface-raised",
-    ),
-    accordionContent: "bg-surface-raised border-border",
-    badge: "bg-surface-raised text-foreground-muted text-xs border-border",
-    menuButton: cn(
-      "text-foreground-muted text-xs",
-      "hover:bg-surface-raised hover:text-foreground",
-    ),
-    menuList: "bg-surface-overlay border-border",
-    menuItem: cn("text-foreground text-xs", "hover:bg-surface-raised"),
+    ...userProfileElements,
+    navbar: "!hidden",
+    navbarMobileMenuRow: "!hidden",
+    scrollBox: "!bg-background !shadow-none flex-1 !w-full",
+    pageScrollBox: "p-4 !bg-background !w-full",
   },
 };
