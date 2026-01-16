@@ -21,7 +21,7 @@ export const THEMES: Theme[] = [
   { id: "solarized-light", name: "Solarized", group: "light" },
 ];
 
-const STORAGE_KEY = "curator-theme";
+const STORAGE_KEY = "honmei-theme";
 const DEFAULT_THEME: ThemeId = "gruvbox-dark";
 
 function getStoredTheme(): ThemeId {

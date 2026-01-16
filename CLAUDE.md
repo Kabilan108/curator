@@ -25,7 +25,7 @@ When the Chrome browser MCP tool is available, use it to view the app at http://
 
 ## Architecture
 
-**Curator** is an anime/manga library tracker with Elo-based ranking through pairwise comparisons.
+**Honmei** is an anime/manga library tracker with Elo-based ranking through pairwise comparisons.
 
 ### Stack
 - **Frontend**: React 19 + Vite + TailwindCSS v4 + base-ui components

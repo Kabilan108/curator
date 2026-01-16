@@ -1,4 +1,4 @@
-# Curator - Development Log
+# Honmei - Development Log
 
 ## 🎯 Feature Ideas & Roadmap
 

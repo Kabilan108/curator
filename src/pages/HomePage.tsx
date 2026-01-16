@@ -26,7 +26,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 type MediaType = "ANIME" | "MANGA";
 type SortOption = "elo" | "recent" | "alphabetical" | "comparisons";
 
-const STORAGE_KEY = "curator-library-tab";
+const STORAGE_KEY = "honmei-library-tab";
 
 export function HomePage() {
   const library = useQuery((api as any).library?.getByRating);

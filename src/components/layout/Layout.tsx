@@ -161,9 +161,9 @@ function Sidebar({ unrankedCount }: { unrankedCount: number }) {
         )}
       >
         {isCollapsed ? (
-          <span className="text-lg font-bold text-foreground">C</span>
+          <span className="text-lg font-bold text-foreground">H</span>
         ) : (
-          <h1 className="text-lg font-bold text-foreground">Curator</h1>
+          <h1 className="text-lg font-bold text-foreground">Honmei</h1>
         )}
       </div>
 
