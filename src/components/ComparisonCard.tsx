@@ -48,6 +48,7 @@ interface ComparisonCardProps {
   disabled: boolean;
   onClick: () => void;
   resultState?: ResultState;
+  compact?: boolean;
 }
 
 function getResultStyles(resultState: ResultState): string {
@@ -69,6 +70,7 @@ export function ComparisonCard({
   disabled,
   onClick,
   resultState = null,
+  compact = false,
 }: ComparisonCardProps): JSX.Element {
   const resultStyles = getResultStyles(resultState);
   const isShowingResult = resultState !== null;
@@ -85,7 +87,9 @@ export function ComparisonCard({
       }`}
     >
       <div className="relative">
-        <div className="aspect-[4/5] md:aspect-[3/4] bg-surface-raised relative overflow-hidden">
+        <div
+          className={`${compact ? "aspect-[2/3]" : "aspect-[4/5] md:aspect-[3/4]"} bg-surface-raised relative overflow-hidden`}
+        >
           <img
             src={item.mediaCoverImage}
             alt={item.mediaTitle}
@@ -94,9 +98,11 @@ export function ComparisonCard({
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
-          <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 space-y-2 md:space-y-3">
+          <div
+            className={`absolute bottom-0 left-0 right-0 ${compact ? "p-2 space-y-1" : "p-4 md:p-6 space-y-2 md:space-y-3"}`}
+          >
             <h3
-              className="text-lg md:text-xl font-bold line-clamp-2 leading-tight"
+              className={`${compact ? "text-sm" : "text-lg md:text-xl"} font-bold line-clamp-2 leading-tight`}
               title={item.mediaTitle}
             >
               {item.mediaTitle}
@@ -108,45 +114,55 @@ export function ComparisonCard({
               >
                 {STATUS_LABELS[item.watchStatus]}
               </span>
-              {item.startYear && (
+              {!compact && item.startYear && (
                 <span className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5">
                   {item.startYear}
                 </span>
               )}
-              {item.mediaType === "ANIME" && item.episodes && (
+              {!compact && item.mediaType === "ANIME" && item.episodes && (
                 <span className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5">
                   {item.episodes} eps
                 </span>
               )}
-              {item.mediaType === "MANGA" && item.chapters && (
+              {!compact && item.mediaType === "MANGA" && item.chapters && (
                 <span className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5">
                   {item.chapters} ch
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {item.mediaGenres.slice(0, 2).map((genre) => (
-                <span
-                  key={genre}
-                  className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
+            {!compact && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {item.mediaGenres.slice(0, 2).map((genre) => (
+                  <span
+                    key={genre}
+                    className="text-[10px] md:text-xs text-foreground-muted bg-white/10 px-1.5 py-0.5"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            <div className="flex items-center justify-between text-sm md:text-base pt-1">
+            <div
+              className={`flex items-center ${compact ? "justify-center" : "justify-between"} text-sm md:text-base pt-1`}
+            >
               <div className="flex items-center gap-1 md:gap-2">
-                <span className="text-foreground-muted text-xs md:text-sm">
-                  Rating:
-                </span>
-                <span className="font-mono font-bold text-base md:text-xl">
+                {!compact && (
+                  <span className="text-foreground-muted text-xs md:text-sm">
+                    Rating:
+                  </span>
+                )}
+                <span
+                  className={`font-mono font-bold ${compact ? "text-sm" : "text-base md:text-xl"}`}
+                >
                   {ratingDisplay}
                 </span>
               </div>
-              <div className="text-foreground-muted text-xs md:text-sm">
-                {item.comparisonCount} comps
-              </div>
+              {!compact && (
+                <div className="text-foreground-muted text-xs md:text-sm">
+                  {item.comparisonCount} comps
+                </div>
+              )}
             </div>
           </div>
         </div>
