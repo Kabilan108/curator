@@ -14,6 +14,7 @@ Set up the development environment for this session:
 3. **Open the app in Chrome:**
    - Use the browser MCP tools to get tab context
    - Create a new tab and navigate to http://localhost:5173
+     - Always create a new tab when this command is invoked
    - Take a screenshot to confirm the app is running
 
 Throughout this session, check the 'servers' tmux pane logs when debugging build errors or runtime issues.
